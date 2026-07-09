@@ -44,8 +44,8 @@ export const Frame = forwardRef<
 
 					<div className="f-1 min-w-0">
 						{/* Tab bar */}
-						<div className="d-f ai-c bbw-1 bs-s bc-border">
-							<div className="d-f ai-c g-2 px-4 bg-page py-2 bbw-2 bs-s bc-accent">
+						<div className="d-f ai-c bbw-1 bs-s bc-border bg-page">
+							<div className="d-f ai-c g-2 px-4 bg-surface py-3 bbw-2 bs-s bc-accent">
 								<input
 									value={fileName}
 									onChange={(event) => onFileNameChange(event.target.value)}
