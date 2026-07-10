@@ -4,6 +4,7 @@ import { forwardRef } from "react";
 import type { LanguageId } from "../lib/highlighter";
 import { LANGUAGES } from "../lib/highlighter";
 import { CodeEditor } from "./CodeEditor";
+import type { CornerRadii } from "./Inspector";
 import type { Background } from "./Toolbar";
 
 // Diagonal hatch texture
@@ -26,7 +27,7 @@ export const Frame = forwardRef<
 		showStatusBar: boolean;
 		showHashtagLines: boolean;
 		background: Background;
-		radius: number;
+		radii: CornerRadii;
 		font?: string;
 		themeName: string;
 	}
@@ -41,13 +42,15 @@ export const Frame = forwardRef<
 		showStatusBar,
 		showHashtagLines,
 		background,
-		radius,
+		radii,
 		font,
 		themeName,
 	},
 	ref,
 ) {
 	const fontStyle = font ? { fontFamily: font } : undefined;
+	// CSS border-radius shorthand order: TL TR BR BL
+	const borderRadius = `${radii.tl}px ${radii.tr}px ${radii.br}px ${radii.bl}px`;
 
 	return (
 		<div
@@ -57,7 +60,7 @@ export const Frame = forwardRef<
 		>
 			<div
 				className="p-r zi-10 w-192 max-w-100% bg-surface o-v"
-				style={{ borderRadius: radius }}
+				style={{ borderRadius }}
 			>
 				{/* Hatch texture - "stripes" background only; "solid" leaves the
 				    plain bg-page backdrop */}
@@ -93,7 +96,7 @@ export const Frame = forwardRef<
 
 				<div
 					className="d-f bg-surface bw-1 bs-s bc-border o-h"
-					style={{ borderRadius: radius }}
+					style={{ borderRadius }}
 				>
 					<div className="f-1 min-w-0">
 						<AnimatePresence>

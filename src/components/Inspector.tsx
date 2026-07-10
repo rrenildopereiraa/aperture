@@ -3,6 +3,7 @@ import { Select } from "@base-ui/react/select";
 import { Separator } from "@base-ui/react/separator";
 import { Slider } from "@base-ui/react/slider";
 import { Switch } from "@base-ui/react/switch";
+import { Tabs } from "@base-ui/react/tabs";
 import { Toggle } from "@base-ui/react/toggle";
 import { ToggleGroup } from "@base-ui/react/toggle-group";
 import {
@@ -33,6 +34,88 @@ export const FONTS: Record<FontId, { label: string; stack?: string }> = {
 		stack: '"IBM Plex Mono", monospace',
 	},
 };
+
+export interface CornerRadii {
+	tl: number;
+	tr: number;
+	bl: number;
+	br: number;
+}
+
+type CornerScope = "all" | keyof CornerRadii;
+
+const CORNER_TABS: { id: CornerScope; label: string }[] = [
+	{ id: "all", label: "All" },
+	{ id: "tl", label: "TL" },
+	{ id: "tr", label: "TR" },
+	{ id: "bl", label: "BL" },
+	{ id: "br", label: "BR" },
+];
+
+// Figma-style per-corner radius: tabs pick the scope (all corners or a
+// single one), the slider edits whatever is selected.
+function RadiusControl({
+	radii,
+	onRadiiChange,
+}: {
+	radii: CornerRadii;
+	onRadiiChange: (value: CornerRadii) => void;
+}) {
+	const [scope, setScope] = useState<CornerScope>("all");
+	const current = scope === "all" ? radii.tl : radii[scope];
+
+	function apply(value: number) {
+		if (scope === "all") {
+			onRadiiChange({ tl: value, tr: value, bl: value, br: value });
+		} else {
+			onRadiiChange({ ...radii, [scope]: value });
+		}
+	}
+
+	return (
+		<div className="d-f fd-c g-1 px-2 py-1">
+			<span className="fs-sm ff-m c-accent-dim us-none">Radius</span>
+			<Tabs.Root
+				value={scope}
+				onValueChange={(value) => setScope(value as CornerScope)}
+			>
+				<Tabs.List className="d-f bw-1 bs-s bc-border">
+					{CORNER_TABS.map(({ id, label }) => (
+						<Tabs.Tab
+							key={id}
+							value={id}
+							className={(state) =>
+								`f-1 px-1 py-1 fs-xs ff-m ta-c us-none c-p bw-0 fv:os-s fv:oo--2 fv:oc-accent ${state.active ? "c-page bg-accent fw-700" : "c-accent-dim bg-transparent h:bg-page"}`
+							}
+						>
+							{label}
+						</Tabs.Tab>
+					))}
+				</Tabs.List>
+			</Tabs.Root>
+			<div className="d-f ai-c g-2">
+				<Slider.Root
+					value={current}
+					onValueChange={(value) => {
+						apply(Array.isArray(value) ? value[0] : value);
+					}}
+					min={0}
+					max={16}
+					step={1}
+					className="f-1"
+				>
+					<Slider.Control className="d-f ai-c py-2 us-none ta-none">
+						<Slider.Track className="p-r h-1 w-100% bg-page">
+							<Slider.Indicator className="bg-accent" />
+							<Slider.Thumb className="w-3 h-3 bg-accent fv:os-s fv:oo-2 fv:oc-accent" />
+						</Slider.Track>
+					</Slider.Control>
+				</Slider.Root>
+				<span className="fs-xs ff-m c-accent-dim w-4 ta-r">{current}</span>
+			</div>
+		</div>
+	);
+}
 
 // --[LABEL]---------- section separator; text beats icons for clarity
 function SectionSeparator({ label }: { label: string }) {
@@ -185,8 +268,8 @@ export function Inspector({
 	onShowHashtagLinesChange,
 	background,
 	onBackgroundChange,
-	radius,
-	onRadiusChange,
+	radii,
+	onRadiiChange,
 	font,
 	onFontChange,
 	themeName,
@@ -200,8 +283,8 @@ export function Inspector({
 	onShowHashtagLinesChange: (value: boolean) => void;
 	background: Background;
 	onBackgroundChange: (value: Background) => void;
-	radius: number;
-	onRadiusChange: (value: number) => void;
+	radii: CornerRadii;
+	onRadiiChange: (value: CornerRadii) => void;
 	font: FontId;
 	onFontChange: (value: FontId) => void;
 	themeName: string;
@@ -224,29 +307,7 @@ export function Inspector({
 				onCheckedChange={onShowStatusBarChange}
 			/>
 
-			<div className="d-f ai-c jc-sb g-3 px-2 py-1">
-				<span className="fs-sm ff-m c-accent-dim us-none">Radius</span>
-				<div className="d-f ai-c g-2 f-1 max-w-32">
-					<Slider.Root
-						value={radius}
-						onValueChange={(value) => {
-							onRadiusChange(Array.isArray(value) ? value[0] : value);
-						}}
-						min={0}
-						max={16}
-						step={1}
-						className="f-1"
-					>
-						<Slider.Control className="d-f ai-c py-2 us-none ta-none">
-							<Slider.Track className="p-r h-1 w-100% bg-page">
-								<Slider.Indicator className="bg-accent" />
-								<Slider.Thumb className="w-3 h-3 bg-accent fv:os-s fv:oo-2 fv:oc-accent" />
-							</Slider.Track>
-						</Slider.Control>
-					</Slider.Root>
-					<span className="fs-xs ff-m c-accent-dim w-4 ta-r">{radius}</span>
-				</div>
-			</div>
+			<RadiusControl radii={radii} onRadiiChange={onRadiiChange} />
 
 			<div className="d-f fd-c g-1 px-2 py-1">
 				<span className="fs-sm ff-m c-accent-dim us-none">Font</span>

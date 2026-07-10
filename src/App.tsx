@@ -4,7 +4,12 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { type Command, CommandPalette } from "./components/CommandPalette";
 import type { ExportFormat } from "./components/FormatPicker";
 import { Frame } from "./components/Frame";
-import { FONTS, type FontId, Inspector } from "./components/Inspector";
+import {
+	type CornerRadii,
+	FONTS,
+	type FontId,
+	Inspector,
+} from "./components/Inspector";
 import { StatusBar } from "./components/StatusBar";
 import type { Background } from "./components/Toolbar";
 import { Toolbar } from "./components/Toolbar";
@@ -55,7 +60,12 @@ function App() {
 	const [showStatusBar, setShowStatusBar] = useState(true);
 	const [background, setBackground] = useState<Background>("stripes");
 	const [showHashtagLines, setShowHashtagLines] = useState(true);
-	const [radius, setRadius] = useState(0);
+	const [radii, setRadii] = useState<CornerRadii>({
+		tl: 0,
+		tr: 0,
+		bl: 0,
+		br: 0,
+	});
 	const [font, setFont] = useState<FontId>("default");
 	const [themeName, setThemeName] = useState(THEME_NAME);
 	const [paletteOpen, setPaletteOpen] = useState(false);
@@ -230,7 +240,7 @@ function App() {
 							showStatusBar={showStatusBar}
 							showHashtagLines={showHashtagLines}
 							background={background}
-							radius={radius}
+							radii={radii}
 							font={FONTS[font].stack}
 							themeName={themeName}
 						/>
@@ -268,8 +278,8 @@ function App() {
 					onShowHashtagLinesChange={setShowHashtagLines}
 					background={background}
 					onBackgroundChange={setBackground}
-					radius={radius}
-					onRadiusChange={setRadius}
+					radii={radii}
+					onRadiiChange={setRadii}
 					font={font}
 					onFontChange={setFont}
 					themeName={themeName}
