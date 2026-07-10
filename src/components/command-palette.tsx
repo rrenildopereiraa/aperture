@@ -86,7 +86,6 @@ export function CommandPalette({
 							<div className="d-f ai-c g-2 px-3 py-2 bbw-1 bs-s bc-border">
 								<MagnifyingGlassIcon
 									size={14}
-									weight="fill"
 									className="c-accent-dim"
 								/>
 								<Input

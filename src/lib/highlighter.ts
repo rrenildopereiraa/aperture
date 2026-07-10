@@ -19,7 +19,7 @@ import tsx from "@shikijs/langs/tsx";
 import typescript from "@shikijs/langs/typescript";
 import vue from "@shikijs/langs/vue";
 
-import eclipsa from "./eclipsa-theme.json";
+import eclipsa from "../themes/eclipsa-theme.json";
 
 export const LANGUAGES = {
 	html: "HTML",

@@ -8,13 +8,13 @@ import { Toggle } from "@base-ui/react/toggle";
 import { ToggleGroup } from "@base-ui/react/toggle-group";
 import {
 	CaretDownIcon,
-	CheckIcon,
+	SquareIcon,
 	UploadSimpleIcon,
 } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { useHaptics } from "../lib/haptics";
-import type { Background } from "./Toolbar";
+import type { Background } from "./toolbar";
 
 export type FontId =
 	| "default"
@@ -241,7 +241,7 @@ function FontPicker({
 												</span>
 											</Select.ItemText>
 											<Select.ItemIndicator className="d-f ai-c c-accent">
-												<CheckIcon size={14} weight="fill" />
+												<SquareIcon size={14} weight="fill" />
 											</Select.ItemIndicator>
 										</Select.Item>
 									))}
@@ -355,7 +355,6 @@ export function Inspector({
 				<span className="fs-sm ff-m c-accent us-none min-w-0 o-h to-e ws-nw">
 					{themeName}
 				</span>
-				<CheckIcon size={14} weight="fill" className="c-accent fs-0" />
 			</div>
 
 			<div className="px-2 py-1">

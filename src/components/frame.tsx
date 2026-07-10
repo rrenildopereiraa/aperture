@@ -3,9 +3,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { forwardRef } from "react";
 import type { LanguageId } from "../lib/highlighter";
 import { LANGUAGES } from "../lib/highlighter";
-import { CodeEditor } from "./CodeEditor";
-import type { CornerRadii } from "./Inspector";
-import type { Background } from "./Toolbar";
+import { CodeEditor } from "./code-editor";
+import type { CornerRadii } from "./inspector";
+import type { Background } from "./toolbar";
 
 // Diagonal hatch texture
 const hatchStyle = {

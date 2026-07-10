@@ -3,9 +3,9 @@ import { ClipboardIcon, ClipboardTextIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useHaptics } from "../lib/haptics";
 import type { LanguageId } from "../lib/highlighter";
-import { ExportButton } from "./ExportButton";
-import { type ExportFormat, FormatPicker } from "./FormatPicker";
-import { LanguagePicker } from "./LanguagePicker";
+import { ExportButton } from "./export-button";
+import { type ExportFormat, FormatPicker } from "./format-picker";
+import { LanguagePicker } from "./language-picker";
 
 export type Background = "stripes" | "solid";
 

@@ -1,20 +1,21 @@
 import { useHotkey } from "@tanstack/react-hotkeys";
-import { toBlob, toCanvas, toJpeg, toPng, toSvg } from "html-to-image";
+import { toBlob } from "html-to-image";
 import { useLayoutEffect, useRef, useState } from "react";
-import { type Command, CommandPalette } from "./components/CommandPalette";
-import type { ExportFormat } from "./components/FormatPicker";
-import { Frame } from "./components/Frame";
+import { Canvas } from "./components/canvas";
+import { CommandPalette } from "./components/command-palette";
+import type { ExportFormat } from "./components/format-picker";
 import {
 	type CornerRadii,
 	FONTS,
 	type FontId,
 	Inspector,
-} from "./components/Inspector";
-import { StatusBar } from "./components/StatusBar";
-import type { Background } from "./components/Toolbar";
-import { Toolbar } from "./components/Toolbar";
+} from "./components/inspector";
+import { StatusBar } from "./components/status-bar";
+import type { Background } from "./components/toolbar";
+import { Toolbar } from "./components/toolbar";
+import { buildCommands } from "./lib/commands";
+import { captureDataUrl } from "./lib/export";
 import {
-	LANGUAGES,
 	type LanguageId,
 	loadCustomTheme,
 	THEME_NAME,
@@ -31,24 +32,6 @@ export default defineConfig({
 	},
 });
 `;
-
-async function captureDataUrl(
-	node: HTMLElement,
-	format: ExportFormat,
-): Promise<string> {
-	switch (format) {
-		case "svg":
-			return toSvg(node);
-		case "webp": {
-			const canvas = await toCanvas(node, { pixelRatio: 2 });
-			return canvas.toDataURL("image/webp");
-		}
-		case "jpg":
-			return toJpeg(node, { pixelRatio: 2, quality: 0.95 });
-		default:
-			return toPng(node, { pixelRatio: 2 });
-	}
-}
 
 function App() {
 	const [code, setCode] = useState(defaultCode);
@@ -77,15 +60,11 @@ function App() {
 			const name = await loadCustomTheme(await file.text());
 			setThemeName(name);
 		} catch (error) {
-			// Not a valid VS Code theme - leave the current theme untouched.
 			console.error("Theme upload failed:", error);
 		}
 	}
 
-	// Live px dimensions for the status bar - measured directly on every
-	// size-affecting state change, with a ResizeObserver on top for changes
-	// that don't go through React state (font loading, window resize).
-	// biome-ignore lint/correctness/useExhaustiveDependencies: deps are size triggers, not read values
+	// biome-ignore lint/correctness/useExhaustiveDependencies: deps are size triggers
 	useLayoutEffect(() => {
 		const node = frameRef.current;
 		if (!node) return;
@@ -128,8 +107,6 @@ function App() {
 		await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
 	}
 
-	// Palette-safe bindings only: Ctrl+T/N/W are browser-reserved and
-	// plain Ctrl+C must keep copying selected text.
 	useHotkey("Mod+K", (event) => {
 		event.preventDefault();
 		setPaletteOpen((open) => !open);
@@ -147,65 +124,22 @@ function App() {
 		setBackground((current) => (current === "stripes" ? "solid" : "stripes"));
 	});
 
-	const commands: Command[] = [
-		{ id: "export", label: "Export image", kbd: "Ctrl S", run: handleExport },
-		{
-			id: "copy-image",
-			label: "Copy image to clipboard",
-			kbd: "Ctrl Shift C",
-			run: handleCopyImage,
-		},
-		{
-			id: "copy-code",
-			label: "Copy code to clipboard",
-			run: () => navigator.clipboard.writeText(code),
-		},
-		{
-			id: "toggle-tab-bar",
-			label: `${showTabBar ? "Hide" : "Show"} tab bar`,
-			run: () => setShowTabBar((value) => !value),
-		},
-		{
-			id: "toggle-status-bar",
-			label: `${showStatusBar ? "Hide" : "Show"} status bar`,
-			run: () => setShowStatusBar((value) => !value),
-		},
-		{
-			id: "toggle-background",
-			label: `Background: switch to ${background === "stripes" ? "solid" : "stripes"}`,
-			kbd: "Ctrl B",
-			run: () =>
-				setBackground((current) =>
-					current === "stripes" ? "solid" : "stripes",
-				),
-		},
-		{
-			id: "toggle-hashtag-lines",
-			label: `${showHashtagLines ? "Hide" : "Show"} hashtag lines`,
-			run: () => setShowHashtagLines((value) => !value),
-		},
-		...(Object.keys(FONTS) as FontId[]).map(
-			(id): Command => ({
-				id: `font-${id}`,
-				label: `Set font: ${FONTS[id].label}`,
-				run: () => setFont(id),
-			}),
-		),
-		...(Object.entries(LANGUAGES) as [LanguageId, string][]).map(
-			([id, label]): Command => ({
-				id: `language-${id}`,
-				label: `Set language: ${label}`,
-				run: () => setLanguage(id),
-			}),
-		),
-		...(["png", "jpg", "webp", "svg"] as ExportFormat[]).map(
-			(id): Command => ({
-				id: `format-${id}`,
-				label: `Set format: ${id.toUpperCase()}`,
-				run: () => setFormat(id),
-			}),
-		),
-	];
+	const commands = buildCommands({
+		showTabBar,
+		onShowTabBarChange: (value) => setShowTabBar(value),
+		showStatusBar,
+		onShowStatusBarChange: (value) => setShowStatusBar(value),
+		showHashtagLines,
+		onShowHashtagLinesChange: (value) => setShowHashtagLines(value),
+		background,
+		onBackgroundChange: setBackground,
+		onSetLanguage: setLanguage,
+		onSetFormat: setFormat,
+		onSetFont: setFont,
+		onCopyCode: () => navigator.clipboard.writeText(code),
+		onExport: handleExport,
+		onCopyImage: handleCopyImage,
+	});
 
 	return (
 		<div className="d-f fd-c min-h-vh bg-page">
@@ -218,56 +152,21 @@ function App() {
 			<div className="h-px bg-border" />
 
 			<div className="f-1 d-f">
-				{/*
-					No overflow clamping - long wrapped content grows the frame
-					taller and the page scrolls to show it, ray.so style.
-				*/}
-				<main className="f-1 d-f ai-c jc-c p-r px-4 @sm:px-8 py-8 @sm:py-24">
-					{/*
-						Selection chrome wraps the frame but lives OUTSIDE the
-						exported node (frameRef points at <Frame> itself), so the
-						outline and handles never appear in the downloaded image.
-					*/}
-					<div className="p-r min-w-0">
-						<Frame
-							ref={frameRef}
-							code={code}
-							onCodeChange={setCode}
-							language={language}
-							fileName={fileName}
-							onFileNameChange={setFileName}
-							showTabBar={showTabBar}
-							showStatusBar={showStatusBar}
-							showHashtagLines={showHashtagLines}
-							background={background}
-							radii={radii}
-							font={FONTS[font].stack}
-							themeName={themeName}
-						/>
-
-						<div
-							className="p-a i--2 bw-1 bs-s bc-accent pe-none"
-							aria-hidden="true"
-						/>
-
-						<div
-							className="p-a t--3 l--3 w-2 h-2 bg-page bw-1 bs-s bc-accent pe-none"
-							aria-hidden="true"
-						/>
-						<div
-							className="p-a t--3 r--3 w-2 h-2 bg-page bw-1 bs-s bc-accent pe-none"
-							aria-hidden="true"
-						/>
-						<div
-							className="p-a b--3 l--3 w-2 h-2 bg-page bw-1 bs-s bc-accent pe-none"
-							aria-hidden="true"
-						/>
-						<div
-							className="p-a b--3 r--3 w-2 h-2 bg-page bw-1 bs-s bc-accent pe-none"
-							aria-hidden="true"
-						/>
-					</div>
-				</main>
+				<Canvas
+					code={code}
+					onCodeChange={setCode}
+					language={language}
+					fileName={fileName}
+					onFileNameChange={setFileName}
+					showTabBar={showTabBar}
+					showStatusBar={showStatusBar}
+					showHashtagLines={showHashtagLines}
+					background={background}
+					radii={radii}
+					font={FONTS[font].stack}
+					themeName={themeName}
+					frameRef={frameRef}
+				/>
 
 				<Inspector
 					showTabBar={showTabBar}
