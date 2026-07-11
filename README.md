@@ -1,6 +1,6 @@
 # Aperture
 
-Beautiful code screenshots, instantly. [aperture.yummacss.com](https://aperture.yummacss.com)
+Beautiful code screenshots, instantly.
 
 Paste your code, pick a language, and export a polished screenshot.
 
