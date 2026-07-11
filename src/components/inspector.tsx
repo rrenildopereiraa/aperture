@@ -379,6 +379,20 @@ export function Inspector({
 					onFrameColorsChange({ ...frameColors, accentDim })
 				}
 			/>
+			<ColorInput
+				label="Tab bar"
+				value={frameColors.tabBar}
+				onChange={(tabBar) =>
+					onFrameColorsChange({ ...frameColors, tabBar })
+				}
+			/>
+			<ColorInput
+				label="Tab active"
+				value={frameColors.tabActive}
+				onChange={(tabActive) =>
+					onFrameColorsChange({ ...frameColors, tabActive })
+				}
+			/>
 
 			<SectionSeparator label="Theme" />
 

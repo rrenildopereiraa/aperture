@@ -20,6 +20,7 @@ import { useHaptics } from "./lib/haptics";
 import {
 	type LanguageId,
 	loadCustomTheme,
+	THEME_FRAME_COLORS,
 	THEME_NAME,
 } from "./lib/highlighter";
 
@@ -59,6 +60,8 @@ function App() {
 		surface: "#1a1d2e",
 		border: "#232741",
 		accentDim: "#9aa5ef",
+		tabBar: "#151724",
+		tabActive: "#1a1d2e",
 	});
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 	const frameRef = useRef<HTMLDivElement>(null);
@@ -78,6 +81,12 @@ function App() {
 		} catch (error) {
 			console.error("Theme upload failed:", error);
 		}
+	}
+
+	function handleThemeChange(name: string) {
+		setThemeName(name);
+		const colors = THEME_FRAME_COLORS[name];
+		if (colors) setFrameColors(colors);
 	}
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: deps are size triggers
@@ -199,7 +208,7 @@ function App() {
 					font={font}
 					onFontChange={setFont}
 					themeName={themeName}
-					onThemeChange={setThemeName}
+					onThemeChange={handleThemeChange}
 					frameColors={frameColors}
 					onFrameColorsChange={setFrameColors}
 					onUploadTheme={handleUploadTheme}

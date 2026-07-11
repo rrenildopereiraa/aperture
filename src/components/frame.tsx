@@ -12,6 +12,8 @@ export interface FrameColors {
 	surface: string;
 	border: string;
 	accentDim: string;
+	tabBar: string;
+	tabActive: string;
 }
 
 // Diagonal hatch texture
@@ -125,14 +127,14 @@ export const Frame = forwardRef<
 									<div
 										className="d-f ai-c bbw-1 bs-s"
 										style={{
-											backgroundColor: colors.page,
+											backgroundColor: colors.tabBar,
 											borderColor: colors.border,
 										}}
 									>
 										<div
 											className="d-f ai-c g-2 px-4 py-3 bbw-2 bs-s"
 											style={{
-												backgroundColor: colors.surface,
+												backgroundColor: colors.tabActive,
 												borderColor: colors.accentDim,
 											}}
 										>

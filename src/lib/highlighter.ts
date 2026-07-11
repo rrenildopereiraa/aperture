@@ -21,6 +21,7 @@ import vue from "@shikijs/langs/vue";
 import amber from "../themes/amber-theme.json";
 import eclipsa from "../themes/eclipsa-theme.json";
 import monochrome from "../themes/monochrome-theme.json";
+import type { FrameColors } from "../components/frame";
 
 export const LANGUAGES = {
 	html: "HTML",
@@ -51,6 +52,33 @@ export const THEMES = {
 } as const;
 
 export type ThemeId = keyof typeof THEMES;
+
+export const THEME_FRAME_COLORS: Record<string, FrameColors> = {
+	[eclipsa.name]: {
+		page: "#151724",
+		surface: "#1a1d2e",
+		border: "#232741",
+		accentDim: "#9aa5ef",
+		tabBar: "#151724",
+		tabActive: "#1a1d2e",
+	},
+	[monochrome.name]: {
+		page: "#0d0d0d",
+		surface: "#1a1a1a",
+		border: "#333333",
+		accentDim: "#888888",
+		tabBar: "#0d0d0d",
+		tabActive: "#1a1a1a",
+	},
+	[amber.name]: {
+		page: "#1a1206",
+		surface: "#261e12",
+		border: "#3d2e1a",
+		accentDim: "#b8935a",
+		tabBar: "#1a1206",
+		tabActive: "#261e12",
+	},
+};
 
 let highlighterPromise: Promise<HighlighterCore> | null = null;
 
