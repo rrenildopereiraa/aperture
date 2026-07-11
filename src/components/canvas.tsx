@@ -1,7 +1,7 @@
 import type { LanguageId } from "../lib/highlighter";
 import { Frame, type FrameColors } from "./frame";
 import type { CornerRadii } from "./inspector";
-import { SelectionHandles } from "./selection-handles";
+import { BoundingBox } from "./bounding-box";
 import type { Background } from "./toolbar";
 
 export function Canvas({
@@ -55,7 +55,7 @@ export function Canvas({
 					colors={colors}
 				/>
 
-				<SelectionHandles />
+				<BoundingBox />
 			</div>
 		</main>
 	);
