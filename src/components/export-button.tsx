@@ -2,9 +2,9 @@ import { Button } from "@base-ui/react/button";
 import { Menu } from "@base-ui/react/menu";
 import {
 	CaretDownIcon,
-	SquareIcon,
 	DownloadSimpleIcon,
 	SpinnerIcon,
+	SquareIcon,
 } from "@phosphor-icons/react";
 import { useHaptics } from "../lib/haptics";
 import { type ExportFormat, FORMAT_LABELS } from "./format-picker";

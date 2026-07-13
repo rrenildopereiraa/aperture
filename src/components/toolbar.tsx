@@ -31,7 +31,10 @@ export function Toolbar({
 	const [copied, setCopied] = useState(false);
 
 	return (
-		<header className="p-f b-4 l-50% ttx--half zi-50 d-f ai-c g-1 @sm:g-2 px-3 @sm:px-4 py-2 bg-surface bw-1 bs-s bc-border bs-o-xs">
+		<header
+			style={{ left: "calc(50% - var(--content-inset) / 2)" }}
+			className="p-f b-4 ttx--half zi-50 d-f ai-c g-1 @sm:g-2 px-3 @sm:px-4 py-2 bg-surface bw-1 bs-s bc-border bs-o-xs"
+		>
 			<LanguagePicker value={language} onValueChange={onLanguageChange} />
 
 			<Separator orientation="vertical" className="h-6 w-px bg-border" />

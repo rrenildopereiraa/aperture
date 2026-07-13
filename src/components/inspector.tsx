@@ -326,8 +326,8 @@ export function Inspector({
 				label="Tab bar"
 				checked={showTabBar}
 				onCheckedChange={onShowTabBarChange}
-      />
-      <OptionSwitch
+			/>
+			<OptionSwitch
 				label="Bounding box"
 				checked={showBoundingBox}
 				onCheckedChange={onShowBoundingBoxChange}
@@ -336,8 +336,8 @@ export function Inspector({
 				label="Status bar"
 				checked={showStatusBar}
 				onCheckedChange={onShowStatusBarChange}
-      />
-			
+			/>
+
 			<RadiusControl radii={radii} onRadiiChange={onRadiiChange} />
 
 			<OptionSwitch

@@ -7,6 +7,16 @@
 
 :root {
 	color-scheme: light;
+	/* Width the inspector panel (w-72) occupies once it appears at @lg
+	   (64rem). Used to keep the status-bar search and the toolbar centered
+	   over the canvas area rather than the full viewport. */
+	--content-inset: 0rem;
+}
+
+@media (min-width: 64rem) {
+	:root {
+		--content-inset: 18rem;
+	}
 }
 
 body {
