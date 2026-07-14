@@ -78,6 +78,8 @@ export function readThemeFrameColors(theme: {
 		tabActive: getColor(c, "tab.activeBackground") ?? f.tabActive ?? "#1a1d2e",
 		statusBarBg:
 			getColor(c, "statusBar.background") ?? f.statusBarBg ?? "#2d3151",
+		statusBarText:
+			getColor(c, "statusBar.foreground") ?? f.statusBarText ?? "#9aa5ef",
 		activeTabBorder:
 			getColor(c, "tab.activeBorder") ?? f.activeTabBorder ?? "#00000000",
 	};
@@ -101,6 +103,7 @@ export const THEME_FRAME_COLORS: Record<string, FrameColors> = {
 		tabBar: "#f1f5f9",
 		tabActive: "#ffffff",
 		statusBarBg: "#f1f5f9",
+		statusBarText: "#2563eb",
 		activeTabBorder: "#2563eb",
 	},
 	[eclipsa.name]: readThemeFrameColors(

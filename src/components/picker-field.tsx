@@ -1,0 +1,80 @@
+import { Select } from "@base-ui/react/select";
+import { CaretDownIcon } from "@phosphor-icons/react";
+import type { CSSProperties } from "react";
+import { useHaptics } from "../lib/haptics";
+
+export interface PickerOption<T extends string> {
+	id: T;
+	label: string;
+	style?: CSSProperties;
+}
+
+export function PickerField<T extends string>({
+	label,
+	value,
+	options,
+	onValueChange,
+}: {
+	label?: string;
+	value: T;
+	options: PickerOption<T>[];
+	onValueChange: (value: T) => void;
+}) {
+	const { trigger: haptic } = useHaptics();
+	const selected = options.find((option) => option.id === value);
+
+	return (
+		<div className="d-f fd-c g-1 px-2 pb-4">
+			{label && (
+				<span className="fs-sm ff-m c-accent-dim us-none">{label}</span>
+			)}
+			<Select.Root
+				value={value}
+				onValueChange={(next) => {
+					if (next) {
+						onValueChange(next as T);
+						haptic("success");
+					}
+				}}
+			>
+				<Select.Trigger className="d-f ai-c jc-sb g-1 w-100% px-2 py-1 c-accent-dim fs-sm ff-m us-none c-p bw-1 bs-s bc-border bg-page bs-i-xs fv:os-s fv:oo-2 fv:oc-accent">
+					<Select.Value>
+						{() => (
+							<span className="min-w-0 o-h to-e ws-nw">
+								{selected?.label ?? value}
+							</span>
+						)}
+					</Select.Value>
+					<Select.Icon className="d-f c-accent-dim">
+						<CaretDownIcon size={12} weight="fill" />
+					</Select.Icon>
+				</Select.Trigger>
+				<Select.Portal>
+					<Select.Positioner
+						sideOffset={8}
+						alignItemWithTrigger={false}
+						className="zi-90 p-0 ow-0 us-none"
+					>
+						<Select.Popup className="w-48 bw-1 bc-border bg-surface py-1 bs-o-xs">
+							<Select.List>
+								{options.map((option) => (
+									<Select.Item
+										key={option.id}
+										value={option.id}
+										className={(state) =>
+											`d-f ai-c jc-sb g-2 mx-1 px-3 py-2 fs-sm ff-m us-none c-p ${state.highlighted ? "bg-accent c-page" : state.selected ? "c-accent h:c-white fw-700 tdl-u" : "c-accent-dim"}`
+										}
+									>
+										<Select.ItemText>
+											<span style={option.style}>{option.label}</span>
+										</Select.ItemText>
+									</Select.Item>
+								))}
+							</Select.List>
+						</Select.Popup>
+					</Select.Positioner>
+				</Select.Portal>
+			</Select.Root>
+		</div>
+	);
+}

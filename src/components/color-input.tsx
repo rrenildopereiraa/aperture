@@ -30,7 +30,7 @@ export function ColorInput({
 						}
 					}}
 					spellCheck={false}
-					className="ff-m fs-xs c-accent-dim bg-transparent bw-1 bs-s bc-border px-2 py-1 w-20"
+					className="ff-m fs-xs c-accent-dim bg-page bs-i-xs bw-1 bs-s bc-border px-2 py-1 w-20"
 				/>
 				<div
 					className="w-5 bw-1 bs-s bc-border fs-0"

@@ -14,6 +14,7 @@ export interface FrameColors {
 	tabBar: string;
 	tabActive: string;
 	statusBarBg: string;
+	statusBarText: string;
 	activeTabBorder: string;
 }
 
@@ -185,8 +186,8 @@ export const Frame = forwardRef<
 									}}
 								>
 									<span
-										className="ff-m fs-xs c-accent h:c-white tds-u fw-700"
-										style={fontStyle}
+										className="ff-m fs-xs fw-700"
+										style={{ color: colors.statusBarText, ...fontStyle }}
 									>
 										{LANGUAGES[language]}
 									</span>

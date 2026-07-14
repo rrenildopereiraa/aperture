@@ -10,3 +10,10 @@ export interface EditorDocument {
 	code: string;
 	language: LanguageId;
 }
+
+export interface CornerRadii {
+	tl: number;
+	tr: number;
+	bl: number;
+	br: number;
+}

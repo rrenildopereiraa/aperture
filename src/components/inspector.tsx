@@ -1,21 +1,16 @@
 import { Button } from "@base-ui/react/button";
-import { NumberField } from "@base-ui/react/number-field";
-import { Select } from "@base-ui/react/select";
 import { Separator } from "@base-ui/react/separator";
-import { Slider } from "@base-ui/react/slider";
 import { Switch } from "@base-ui/react/switch";
-import {
-	CaretDownIcon,
-	CaretUpIcon,
-	CornersOutIcon,
-	UploadSimpleIcon,
-} from "@phosphor-icons/react";
-import { useState } from "react";
+import { UploadSimpleIcon } from "@phosphor-icons/react";
 import { useHaptics } from "../lib/haptics";
 import { THEMES } from "../lib/highlighter";
-import type { BackgroundPattern } from "../lib/types";
+import type { BackgroundPattern, CornerRadii } from "../lib/types";
 import { ColorInput } from "./color-input";
 import type { FrameColors } from "./frame";
+import { PickerField } from "./picker-field";
+import { RadiusControl } from "./radius-control";
+
+export type { CornerRadii };
 
 const PATTERN_LABELS: Record<BackgroundPattern, string> = {
 	"stripes-right": "Stripes Right",
@@ -41,141 +36,16 @@ export const FONTS: Record<FontId, { label: string; stack?: string }> = {
 	},
 };
 
-export interface CornerRadii {
-	tl: number;
-	tr: number;
-	bl: number;
-	br: number;
-}
-
-const RADIUS_MIN = 0;
-const RADIUS_MAX = 16;
-
-const CORNERS: {
-	id: keyof CornerRadii;
-	label: string;
-	Icon: typeof CaretUpIcon;
-	rotate: string;
-}[] = [
-	{ id: "tl", label: "Top left", Icon: CaretUpIcon, rotate: "ro-63" },
-	{ id: "tr", label: "Top right", Icon: CaretUpIcon, rotate: "ro--63" },
-	{ id: "bl", label: "Bottom left", Icon: CaretUpIcon, rotate: "ro--27" },
-	{ id: "br", label: "Bottom right", Icon: CaretUpIcon, rotate: "ro-27" },
+const FRAME_COLOR_FIELDS: { key: keyof FrameColors; label: string }[] = [
+	{ key: "page", label: "Page" },
+	{ key: "surface", label: "Surface" },
+	{ key: "border", label: "Border" },
+	{ key: "accentDim", label: "Text" },
+	{ key: "tabBar", label: "Tab" },
+	{ key: "tabActive", label: "Tab active" },
+	{ key: "statusBarBg", label: "Status bar" },
+	{ key: "statusBarText", label: "Status bar text" },
 ];
-
-const RADIUS_TICKS = [0, 25, 50, 75, 100];
-
-function RadiusControl({
-	radii,
-	onRadiiChange,
-}: {
-	radii: CornerRadii;
-	onRadiiChange: (value: CornerRadii) => void;
-}) {
-	const { trigger: haptic } = useHaptics();
-	const [split, setSplit] = useState(false);
-
-	const values = [radii.tl, radii.tr, radii.bl, radii.br];
-	const uniform = values.every((value) => value === values[0]);
-
-	function setAll(value: number) {
-		onRadiiChange({ tl: value, tr: value, bl: value, br: value });
-	}
-
-	function setCorner(corner: keyof CornerRadii, value: number) {
-		onRadiiChange({ ...radii, [corner]: value });
-		haptic("success");
-	}
-
-	return (
-		<div className="d-f fd-c g-2 px-2 pt-1 pb-4">
-			<span className="fs-sm ff-m c-accent-dim us-none">Border radius</span>
-
-			<div className="d-f ai-c g-2">
-				<Slider.Root
-					value={uniform ? radii.tl : Math.max(...values)}
-					onValueChange={(value) => setAll(value)}
-					onValueCommitted={() => haptic("success")}
-					min={RADIUS_MIN}
-					max={RADIUS_MAX}
-					step={1}
-					className="d-f ai-c g-2 f-1"
-				>
-					<Slider.Control className="p-r d-f ai-c h-5 f-1 c-p">
-						<div
-							className="p-a l-0 r-0 h-px"
-							style={{ top: "50%" }}
-							aria-hidden="true"
-						>
-							{RADIUS_TICKS.map((pct) => (
-								<span
-									key={pct}
-									className="p-a w-px h-1 bg-border"
-									style={{ left: `${pct}%`, top: -2 }}
-								/>
-							))}
-						</div>
-						<Slider.Track className="p-r f-1 h-px bg-border">
-							<Slider.Indicator className="h-px bg-accent" />
-							<Slider.Thumb className="w-2 h-4 bg-accent bs-o-xs fv:os-s fv:oo-2 fv:oc-accent" />
-						</Slider.Track>
-					</Slider.Control>
-
-					<Slider.Value
-						className={`ff-m fs-xs ta-c w-9 py-1 bw-1 bs-s bc-border us-none ${
-							uniform ? "c-accent-dim" : "c-border"
-						}`}
-					>
-						{(formatted) => (uniform ? formatted[0] : "—")}
-					</Slider.Value>
-				</Slider.Root>
-
-				<Button
-					onClick={() => {
-						setSplit((value) => !value);
-						haptic("success");
-					}}
-					aria-pressed={split}
-					className={`d-f ai-c jc-c w-7 h-7 fs-0 p-0 bw-1 bs-s c-p fv:os-s fv:oo-2 fv:oc-accent ${
-						split
-							? "bg-accent bc-accent c-page"
-							: "bg-transparent bc-border c-accent-dim h:c-accent h:bc-accent"
-					}`}
-				>
-					<CornersOutIcon size={14} weight="bold" />
-				</Button>
-			</div>
-
-			{split && (
-				<div
-					className="g-1"
-					style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}
-				>
-					{CORNERS.map(({ id, label, Icon, rotate }) => (
-						<div key={id} className="d-f bw-1 bs-s bc-border">
-							<span className="d-f ai-c jc-c w-6 fs-0 c-accent-dim brw-1 bs-s bc-border">
-								<Icon size={12} weight="bold" aria-hidden className={rotate} />
-							</span>
-							<NumberField.Root
-								value={radii[id]}
-								onValueChange={(value) => {
-									if (value != null) setCorner(id, value);
-								}}
-								min={RADIUS_MIN}
-								max={RADIUS_MAX}
-								step={1}
-								aria-label={`${label} radius`}
-								className="f-1"
-							>
-								<NumberField.Input className="ff-m fs-xs c-accent-dim bg-transparent bw-0 px-1 py-1 w-100% ta-c" />
-							</NumberField.Root>
-						</div>
-					))}
-				</div>
-			)}
-		</div>
-	);
-}
 
 function SectionSeparator({ label }: { label: string }) {
 	return (
@@ -216,60 +86,6 @@ function OptionSwitch({
 				/>
 			</Switch.Root>
 		</div>
-	);
-}
-
-function ThemePicker({
-	value,
-	onValueChange,
-}: {
-	value: string;
-	onValueChange: (value: string) => void;
-}) {
-	const { trigger: haptic } = useHaptics();
-
-	return (
-		<Select.Root
-			value={value}
-			onValueChange={(next) => {
-				if (next) {
-					onValueChange(next);
-					haptic("success");
-				}
-			}}
-		>
-			<Select.Trigger className="d-f ai-c jc-sb g-1 w-100% px-2 py-1 c-accent-dim fs-sm ff-m us-none c-p bw-1 bs-s bc-border bg-page bs-i-xs fv:os-s fv:oo-2 fv:oc-accent">
-				<Select.Value>
-					{() => <span className="min-w-0 o-h to-e ws-nw">{value}</span>}
-				</Select.Value>
-				<Select.Icon className="d-f c-accent-dim">
-					<CaretDownIcon size={12} weight="fill" />
-				</Select.Icon>
-			</Select.Trigger>
-			<Select.Portal>
-				<Select.Positioner
-					sideOffset={8}
-					alignItemWithTrigger={false}
-					className="zi-90 p-0 ow-0 us-none"
-				>
-					<Select.Popup className="w-48 bw-1 bc-border bg-surface py-1 bs-o-xs">
-						<Select.List>
-							{(Object.keys(THEMES) as (keyof typeof THEMES)[]).map((id) => (
-								<Select.Item
-									key={id}
-									value={id}
-									className={(state) =>
-										`d-f ai-c jc-sb g-2 mx-1 px-3 py-2 fs-sm ff-m us-none c-p ${state.highlighted ? "bg-accent c-page" : state.selected ? "c-accent h:c-white fw-700 tdl-u" : "c-accent-dim"}`
-									}
-								>
-									<Select.ItemText>{id}</Select.ItemText>
-								</Select.Item>
-							))}
-						</Select.List>
-					</Select.Popup>
-				</Select.Positioner>
-			</Select.Portal>
-		</Select.Root>
 	);
 }
 
@@ -361,64 +177,16 @@ export function Inspector({
 				/>
 			)}
 
-			<div className="d-f fd-c g-1 px-2 pb-4">
-				<span className="fs-sm ff-m c-accent-dim us-none">Font</span>
-				<Select.Root
-					value={font}
-					onValueChange={(next) => {
-						if (next) {
-							onFontChange(next as FontId);
-							haptic("success");
-						}
-					}}
-				>
-					<Select.Trigger className="d-f ai-c jc-sb g-1 w-100% px-2 py-1 c-accent-dim fs-sm ff-m us-none c-p bw-1 bs-s bc-border fv:os-s fv:oo-2 fv:oc-accent bg-page bs-i-xs">
-						<Select.Value>
-							{() => (
-								<span className="min-w-0 o-h to-e ws-nw">
-									{FONTS[font].label}
-								</span>
-							)}
-						</Select.Value>
-						<Select.Icon className="d-f c-accent-dim">
-							<CaretDownIcon size={12} weight="fill" />
-						</Select.Icon>
-					</Select.Trigger>
-					<Select.Portal>
-						<Select.Positioner
-							sideOffset={8}
-							alignItemWithTrigger={false}
-							className="zi-90 p-0 ow-0 us-none"
-						>
-							<Select.Popup className="w-48 bw-1 bc-border bg-surface py-1 bs-o-xs">
-								<Select.List>
-									{(Object.keys(FONTS) as FontId[]).map((id) => (
-										<Select.Item
-											key={id}
-											value={id}
-											className={(state) =>
-												`d-f ai-c jc-sb g-2 mx-1 px-3 py-2 fs-sm ff-m us-none c-p ${state.highlighted ? "bg-accent c-page" : state.selected ? "c-accent h:c-white fw-700 tdl-u" : "c-accent-dim"}`
-											}
-										>
-											<Select.ItemText>
-												<span
-													style={
-														FONTS[id].stack
-															? { fontFamily: FONTS[id].stack }
-															: undefined
-													}
-												>
-													{FONTS[id].label}
-												</span>
-											</Select.ItemText>
-										</Select.Item>
-									))}
-								</Select.List>
-							</Select.Popup>
-						</Select.Positioner>
-					</Select.Portal>
-				</Select.Root>
-			</div>
+			<PickerField
+				label="Font"
+				value={font}
+				options={(Object.keys(FONTS) as FontId[]).map((id) => ({
+					id,
+					label: FONTS[id].label,
+					style: FONTS[id].stack ? { fontFamily: FONTS[id].stack } : undefined,
+				}))}
+				onValueChange={onFontChange}
+			/>
 
 			<SectionSeparator label="Background" />
 
@@ -435,65 +203,23 @@ export function Inspector({
 			/>
 
 			{showBackgroundPattern && (
-				<div className="d-f fd-c g-1 px-2 pb-4">
-					<Select.Root
-						value={background}
-						onValueChange={(next) => {
-							if (next) {
-								onBackgroundChange(next as BackgroundPattern);
-								haptic("success");
-							}
-						}}
-					>
-						<Select.Trigger className="d-f ai-c jc-sb g-1 w-100% px-2 py-1 c-accent-dim fs-sm ff-m us-none c-p bw-1 bs-s bc-border fv:os-s fv:oo-2 fv:oc-accent bg-page bs-i-xs">
-							<Select.Value>
-								{() => (
-									<span className="min-w-0 o-h to-e ws-nw">
-										{PATTERN_LABELS[background]}
-									</span>
-								)}
-							</Select.Value>
-							<Select.Icon className="d-f c-accent-dim">
-								<CaretDownIcon size={12} weight="fill" />
-							</Select.Icon>
-						</Select.Trigger>
-						<Select.Portal>
-							<Select.Positioner
-								sideOffset={8}
-								alignItemWithTrigger={false}
-								className="zi-90 p-0 ow-0 us-none"
-							>
-								<Select.Popup className="w-48 bw-1 bc-border bg-surface py-1 bs-o-xs">
-									<Select.List>
-										{(Object.keys(PATTERN_LABELS) as BackgroundPattern[]).map(
-											(id) => (
-												<Select.Item
-													key={id}
-													value={id}
-													className={(state) =>
-														`d-f ai-c jc-sb g-2 mx-1 px-3 py-2 fs-sm ff-m us-none c-p ${state.highlighted ? "bg-accent c-page" : state.selected ? "c-accent h:c-white fw-700 tdl-u" : "c-accent-dim"}`
-													}
-												>
-													<Select.ItemText>
-														{PATTERN_LABELS[id]}
-													</Select.ItemText>
-												</Select.Item>
-											),
-										)}
-									</Select.List>
-								</Select.Popup>
-							</Select.Positioner>
-						</Select.Portal>
-					</Select.Root>
-				</div>
+				<PickerField
+					value={background}
+					options={(Object.keys(PATTERN_LABELS) as BackgroundPattern[]).map(
+						(id) => ({ id, label: PATTERN_LABELS[id] }),
+					)}
+					onValueChange={onBackgroundChange}
+				/>
 			)}
 
 			<SectionSeparator label="Appearance" />
 
-			<div className="d-f fd-c g-1 px-2 pb-4">
-				<span className="fs-sm ff-m c-accent-dim us-none">Theme</span>
-				<ThemePicker value={themeName} onValueChange={onThemeChange} />
-			</div>
+			<PickerField
+				label="Theme"
+				value={themeName}
+				options={Object.keys(THEMES).map((id) => ({ id, label: id }))}
+				onValueChange={onThemeChange}
+			/>
 
 			<div className="px-2 pb-4">
 				<Button
@@ -517,47 +243,16 @@ export function Inspector({
 				</Button>
 			</div>
 
-			<ColorInput
-				label="Page"
-				value={frameColors.page}
-				onChange={(page) => onFrameColorsChange({ ...frameColors, page })}
-			/>
-			<ColorInput
-				label="Surface"
-				value={frameColors.surface}
-				onChange={(surface) => onFrameColorsChange({ ...frameColors, surface })}
-			/>
-			<ColorInput
-				label="Border"
-				value={frameColors.border}
-				onChange={(border) => onFrameColorsChange({ ...frameColors, border })}
-			/>
-			<ColorInput
-				label="Text"
-				value={frameColors.accentDim}
-				onChange={(accentDim) =>
-					onFrameColorsChange({ ...frameColors, accentDim })
-				}
-			/>
-			<ColorInput
-				label="Tab"
-				value={frameColors.tabBar}
-				onChange={(tabBar) => onFrameColorsChange({ ...frameColors, tabBar })}
-			/>
-			<ColorInput
-				label="Tab active"
-				value={frameColors.tabActive}
-				onChange={(tabActive) =>
-					onFrameColorsChange({ ...frameColors, tabActive })
-				}
-			/>
-			<ColorInput
-				label="Status bar"
-				value={frameColors.statusBarBg}
-				onChange={(statusBarBg) =>
-					onFrameColorsChange({ ...frameColors, statusBarBg })
-				}
-			/>
+			{FRAME_COLOR_FIELDS.map(({ key, label }) => (
+				<ColorInput
+					key={key}
+					label={label}
+					value={frameColors[key]}
+					onChange={(value) =>
+						onFrameColorsChange({ ...frameColors, [key]: value })
+					}
+				/>
+			))}
 		</aside>
 	);
 }
