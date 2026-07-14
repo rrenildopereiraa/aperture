@@ -44,7 +44,7 @@ function App() {
 	const [format, setFormat] = useState<ExportFormat>("png");
 	const [exporting, setExporting] = useState(false);
 	const [showTabBar, setShowTabBar] = useState(true);
-	const [showStatusBar, setShowStatusBar] = useState(false);
+	const [showStatusBar, setShowStatusBar] = useState(true);
 	const [background, setBackground] =
 		useState<BackgroundPattern>("stripes-right");
 	const [showBackgroundPattern, setShowBackgroundPattern] = useState(true);
