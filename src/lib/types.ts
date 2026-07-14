@@ -2,6 +2,8 @@ import type { LanguageId } from "./highlighter";
 
 export type BackgroundPattern = "stripes-right" | "stripes-left";
 
+export const MAX_DOCUMENTS = 5;
+
 export interface EditorDocument {
 	id: string;
 	fileName: string;

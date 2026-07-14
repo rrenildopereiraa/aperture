@@ -22,7 +22,11 @@ import {
 	THEME_FRAME_COLORS,
 	THEME_NAME,
 } from "./lib/highlighter";
-import type { BackgroundPattern, EditorDocument } from "./lib/types";
+import {
+	type BackgroundPattern,
+	type EditorDocument,
+	MAX_DOCUMENTS,
+} from "./lib/types";
 
 const defaultCode = `import { defineConfig } from "yummacss";
 
@@ -82,13 +86,23 @@ function App() {
 	}
 
 	function addDocument() {
+		if (documents.length >= MAX_DOCUMENTS) {
+			toast.add({
+				title: "Snippet limit reached",
+				description: `You can have up to ${MAX_DOCUMENTS} snippets.`,
+				type: "error",
+			});
+			return;
+		}
 		const doc: EditorDocument = {
 			id: crypto.randomUUID(),
 			fileName: "Untitled",
 			code: "",
 			language: active.language,
 		};
-		setDocuments((docs) => [...docs, doc]);
+		setDocuments((docs) =>
+			docs.length >= MAX_DOCUMENTS ? docs : [...docs, doc],
+		);
 		setActiveId(doc.id);
 		haptic("success");
 	}

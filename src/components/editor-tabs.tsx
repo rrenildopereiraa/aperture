@@ -10,7 +10,7 @@ import {
 import { useState } from "react";
 import { useHaptics } from "../lib/haptics";
 import { modKey } from "../lib/platform";
-import type { EditorDocument } from "../lib/types";
+import { type EditorDocument, MAX_DOCUMENTS } from "../lib/types";
 import { ExportButton } from "./export-button";
 import type { ExportFormat } from "./format-picker";
 
@@ -42,6 +42,7 @@ export function EditorTabBar({
 	const { trigger: haptic } = useHaptics();
 	const [copied, setCopied] = useState(false);
 	const canClose = documents.length > 1;
+	const atLimit = documents.length >= MAX_DOCUMENTS;
 
 	return (
 		<header className="d-f ai-c bbw-1 bs-s bc-border bg-surface">
@@ -90,8 +91,14 @@ export function EditorTabBar({
 				<button
 					type="button"
 					onClick={onAdd}
-					title="New snippet"
-					className="d-f ai-c jc-c as-s w-8 brw-1 bs-s bc-border c-accent-dim bg-transparent c-p h:c-accent h:bg-page fv:os-s fv:oo--2 fv:oc-accent"
+					disabled={atLimit}
+					title={
+						atLimit ? `Snippet limit reached (${MAX_DOCUMENTS})` : "New snippet"
+					}
+					style={atLimit ? { opacity: 0.4 } : undefined}
+					className={`d-f ai-c jc-c as-s w-8 brw-1 bs-s bc-border c-accent-dim bg-transparent fv:os-s fv:oo--2 fv:oc-accent ${
+						atLimit ? "" : "c-p h:c-accent h:bg-page"
+					}`}
 				>
 					<PlusIcon size={14} weight="bold" />
 				</button>
