@@ -470,7 +470,7 @@ export function Inspector({
 					onClick={() => {
 						const input = document.createElement("input");
 						input.type = "file";
-						input.accept = ".json,.jsonc,application/json";
+						input.accept = ".json";
 						input.onchange = () => {
 							const file = input.files?.[0];
 							if (file) {
