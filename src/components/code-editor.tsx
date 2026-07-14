@@ -23,8 +23,9 @@ export function CodeEditor({
 		let cancelled = false;
 		getHighlighter().then((highlighter) => {
 			if (cancelled) return;
+			const lang = language === "mjs" ? "javascript" : language;
 			const result = highlighter.codeToTokens(code, {
-				lang: language,
+				lang,
 				theme: themeName,
 			});
 			setTokens(result.tokens);

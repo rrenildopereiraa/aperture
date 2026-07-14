@@ -57,7 +57,7 @@ export function CommandPalette({
 			{open && (
 				<Dialog.Portal keepMounted>
 					<Dialog.Backdrop className="p-f i-0 zi-80 bg-page/60" />
-					<Dialog.Popup className="p-f t-24 l-50% ttx--half zi-90 w-112 max-w-100% bg-surface bw-1 bs-s bc-border br-xl bs-o-xs">
+					<Dialog.Popup className="p-f t-24 l-50% ttx--half zi-90 w-112 max-w-100% bg-surface bw-1 bs-s bc-border bs-o-xs">
 						<div className="d-f ai-c g-2 px-3 py-2 bbw-1 bs-s bc-border">
 							<MagnifyingGlassIcon size={14} className="c-accent-dim" />
 							<Input
@@ -82,7 +82,7 @@ export function CommandPalette({
 									}
 								}}
 								placeholder="Search commands..."
-								className="f-1 ff-m fs-sm c-accent bg-transparent bw-1 bs-s bc-border br-xxl bs-i-xs os-none p-0"
+								className="f-1 ff-m fs-sm c-accent bg-transparent bs-s os-none p-0"
 							/>
 						</div>
 
@@ -104,7 +104,7 @@ export function CommandPalette({
 								>
 									<span>{command.label}</span>
 									{command.kbd && (
-										<span className="px-1 bw-1 bs-s bc-border br-xxl fs-xs c-accent-dim ws-nw">
+										<span className=" px-1 bw-1 bs-s bc-border fs-xs c-accent-dim ws-nw">
 											{command.kbd}
 										</span>
 									)}

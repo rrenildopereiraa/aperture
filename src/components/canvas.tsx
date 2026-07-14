@@ -1,8 +1,8 @@
 import type { LanguageId } from "../lib/highlighter";
+import type { Background } from "../lib/types";
 import { BoundingBox } from "./bounding-box";
 import { Frame, type FrameColors } from "./frame";
 import type { CornerRadii } from "./inspector";
-import type { Background } from "./toolbar";
 
 export function Canvas({
 	code,

@@ -3,6 +3,7 @@ import { toBlob } from "html-to-image";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Canvas } from "./components/canvas";
 import { CommandPalette } from "./components/command-palette";
+import { EditorTabBar } from "./components/editor-tabs";
 import type { ExportFormat } from "./components/format-picker";
 import type { FrameColors } from "./components/frame";
 import {
@@ -13,8 +14,6 @@ import {
 } from "./components/inspector";
 import { StatusBar } from "./components/status-bar";
 import { useToast } from "./components/toast-provider";
-import type { Background } from "./components/toolbar";
-import { Toolbar } from "./components/toolbar";
 import { buildCommands } from "./lib/commands";
 import { captureDataUrl } from "./lib/export";
 import { useHaptics } from "./lib/haptics";
@@ -24,6 +23,7 @@ import {
 	THEME_FRAME_COLORS,
 	THEME_NAME,
 } from "./lib/highlighter";
+import type { Background } from "./lib/types";
 
 const defaultCode = `import { defineConfig } from "yummacss";
 
@@ -39,7 +39,7 @@ export default defineConfig({
 
 function App() {
 	const [code, setCode] = useState(defaultCode);
-	const [language, setLanguage] = useState<LanguageId>("typescript");
+	const [language, setLanguage] = useState<LanguageId>("mjs");
 	const [fileName, setFileName] = useState("yumma.config.mjs");
 	const [format, setFormat] = useState<ExportFormat>("png");
 	const [exporting, setExporting] = useState(false);
@@ -179,13 +179,15 @@ function App() {
 
 	return (
 		<div className="d-f fd-c min-h-vh bg-page">
-			<StatusBar
+			<EditorTabBar
+				fileName={fileName}
 				onOpenPalette={() => setPaletteOpen(true)}
-				width={dimensions.width}
-				height={dimensions.height}
+				onCopy={handleCopyImage}
+				onExport={handleExport}
+				exporting={exporting}
+				format={format}
+				onFormatChange={setFormat}
 			/>
-
-			<div className="h-px bg-border" />
 
 			<div className="f-1 d-f">
 				<Canvas
@@ -232,17 +234,15 @@ function App() {
 				/>
 			</div>
 
-			<Toolbar
+			<StatusBar
 				language={language}
 				onLanguageChange={setLanguage}
-				format={format}
-				onFormatChange={setFormat}
-				exporting={exporting}
-				onCopy={() => {
-					navigator.clipboard.writeText(code);
-					toast.add({ title: "Copied" });
-				}}
-				onExport={handleExport}
+				background={background}
+				onBackgroundChange={setBackground}
+				themeName={themeName}
+				onThemeChange={handleThemeChange}
+				width={dimensions.width}
+				height={dimensions.height}
 			/>
 
 			<CommandPalette

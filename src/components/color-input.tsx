@@ -19,7 +19,7 @@ export function ColorInput({
 	return (
 		<div className="d-f ai-c jc-sb g-2 px-2 pb-2">
 			<span className="fs-sm ff-m c-accent-dim us-none">{label}</span>
-			<div className="d-f ai-c g-2">
+			<div className="d-f g-2">
 				<Input
 					value={value}
 					onChange={(event) => {
@@ -30,10 +30,10 @@ export function ColorInput({
 						}
 					}}
 					spellCheck={false}
-					className="ff-m fs-xs c-accent-dim bg-transparent bw-1 bs-s bc-border br-xxl px-2 py-1 w-20"
+					className="ff-m fs-xs c-accent-dim bg-transparent bw-1 bs-s bc-border px-2 py-1 w-20"
 				/>
 				<div
-					className="w-5 h-5 br-50% bw-1 bs-s bc-border fs-0"
+					className="w-5 bw-1 bs-s bc-border fs-0"
 					style={{ backgroundColor: value }}
 				/>
 			</div>

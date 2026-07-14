@@ -1,8 +1,8 @@
 import type { ExportFormat } from "../components/format-picker";
 import { FONTS, type FontId } from "../components/inspector";
-import type { Background } from "../components/toolbar";
 import { LANGUAGES, type LanguageId } from "./highlighter";
 import { modLabel } from "./platform";
+import type { Background } from "./types";
 
 export interface Command {
 	id: string;
