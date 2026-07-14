@@ -100,11 +100,11 @@ export function CommandPalette({
 									data-palette-highlighted={
 										index === highlighted ? "" : undefined
 									}
-									className={`d-f ai-c jc-sb g-2 w-100% px-3 py-2 fs-sm ff-m ta-l us-none c-p bw-0 ${index === highlighted ? "bg-page c-accent" : "bg-transparent c-accent-dim"}`}
+									className={`d-f ai-c jc-sb g-2 w-100% px-3 py-2 fs-sm ff-m ta-l us-none c-p bw-0 ${index === highlighted ? "bg-accent c-page" : "bg-transparent c-accent-dim"}`}
 								>
 									<span>{command.label}</span>
 									{command.kbd && (
-										<span className=" px-1 bw-1 bs-s bc-border fs-xs c-accent-dim ws-nw">
+										<span className={`px-1 bw-1 bs-s bc-border fs-xs ws-nw ${index === highlighted ? "c-white" : "c-accent-dim"}`}>
 											{command.kbd}
 										</span>
 									)}
