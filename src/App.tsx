@@ -22,33 +22,25 @@ import {
 	THEME_FRAME_COLORS,
 	THEME_NAME,
 } from "./lib/highlighter";
+import { randomSnippet } from "./lib/snippets";
 import {
 	type BackgroundPattern,
 	type EditorDocument,
 	MAX_DOCUMENTS,
 } from "./lib/types";
 
-const defaultCode = `import { defineConfig } from "yummacss";
-
-export default defineConfig({
-	theme: {
-		colors: {
-			accent: "#bec6f2",
-			code: "#dda2f6",
-		},
-	},
-});
-`;
-
 function App() {
-	const [documents, setDocuments] = useState<EditorDocument[]>(() => [
-		{
-			id: crypto.randomUUID(),
-			fileName: "yumma.config.mjs",
-			code: defaultCode,
-			language: "mjs",
-		},
-	]);
+	const [documents, setDocuments] = useState<EditorDocument[]>(() => {
+		const snippet = randomSnippet();
+		return [
+			{
+				id: crypto.randomUUID(),
+				fileName: snippet.fileName,
+				code: snippet.code,
+				language: snippet.language,
+			},
+		];
+	});
 	const [activeId, setActiveId] = useState(() => documents[0].id);
 	const [format, setFormat] = useState<ExportFormat>("png");
 	const [exporting, setExporting] = useState(false);
