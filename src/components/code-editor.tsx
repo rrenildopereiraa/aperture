@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getHighlighter, type LanguageId } from "../lib/highlighter";
 
+const TAB = "\t";
+
 export function CodeEditor({
 	code,
 	onCodeChange,
@@ -36,7 +38,19 @@ export function CodeEditor({
 	}, [code, language, themeName]);
 
 	const lines = code.split("\n");
-	const fontStyle = font ? { fontFamily: font } : undefined;
+	const editorStyle = { tabSize: 2, ...(font ? { fontFamily: font } : {}) };
+
+	const setSelection = useCallback(
+		(textarea: HTMLTextAreaElement, start: number, end: number) => {
+			// The textarea is controlled, so the value updates on re-render;
+			// restore the caret afterwards.
+			requestAnimationFrame(() => {
+				textarea.selectionStart = start;
+				textarea.selectionEnd = end;
+			});
+		},
+		[],
+	);
 
 	const handleKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -45,18 +59,54 @@ export function CodeEditor({
 			const textarea = event.currentTarget;
 			const start = textarea.selectionStart;
 			const end = textarea.selectionEnd;
-			const next = `${code.slice(0, start)}\t${code.slice(end)}`;
-			onCodeChange(next);
-			requestAnimationFrame(() => {
-				textarea.selectionStart = start + 1;
-				textarea.selectionEnd = start + 1;
+			const dedent = event.shiftKey;
+
+			// Plain Tab with no selection: insert a single indent at the caret.
+			if (!dedent && start === end) {
+				const next = code.slice(0, start) + TAB + code.slice(end);
+				onCodeChange(next);
+				setSelection(textarea, start + TAB.length, start + TAB.length);
+				return;
+			}
+
+			// Otherwise indent/dedent every line the selection touches.
+			const firstLineStart = code.lastIndexOf("\n", start - 1) + 1;
+			const nextBreak = code.indexOf("\n", end);
+			const regionEnd = nextBreak === -1 ? code.length : nextBreak;
+			const regionLines = code.slice(firstLineStart, regionEnd).split("\n");
+
+			let firstDelta = 0;
+			let totalDelta = 0;
+			const transformed = regionLines.map((line, index) => {
+				if (dedent) {
+					const cut = line.startsWith(TAB)
+						? 1
+						: (line.match(/^ {1,2}/)?.[0].length ?? 0);
+					if (index === 0) firstDelta = -cut;
+					totalDelta -= cut;
+					return line.slice(cut);
+				}
+				if (index === 0) firstDelta = TAB.length;
+				totalDelta += TAB.length;
+				return TAB + line;
 			});
+
+			const next =
+				code.slice(0, firstLineStart) +
+				transformed.join("\n") +
+				code.slice(regionEnd);
+			onCodeChange(next);
+			setSelection(
+				textarea,
+				Math.max(firstLineStart, start + firstDelta),
+				end + totalDelta,
+			);
 		},
-		[code, onCodeChange],
+		[code, onCodeChange, setSelection],
 	);
 
 	return (
-		<div className="p-r ff-m fs-sm lh-4" style={fontStyle}>
+		<div className="p-r ff-m fs-sm lh-4" style={editorStyle}>
 			{lines.map((line, lineIndex) => (
 				// biome-ignore lint: index is stable, lines are purely positional
 				<div key={lineIndex} className="ws-pw">
@@ -82,7 +132,7 @@ export function CodeEditor({
 				ref={textareaRef}
 				onKeyDown={handleKeyDown}
 				className="p-a t-0 l-0 w-100% h-100% p-0 m-0 bg-transparent c-transparent cc-accent bw-0 os-none o-h r-none ff-m fs-sm lh-4 ws-pw"
-				style={fontStyle}
+				style={editorStyle}
 			/>
 		</div>
 	);
