@@ -12,3 +12,10 @@
 body {
 	font-family: "iA Writer Quattro", sans-serif;
 }
+
+/* Toast exit: GSAP handles the entrance (see toast-provider.tsx); this is
+   the CSS transition Base UI awaits before unmounting a dismissed toast. */
+.toast-item[data-ending-style] {
+	opacity: 0;
+	transform: translateX(1rem);
+}
