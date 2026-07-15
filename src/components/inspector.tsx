@@ -77,17 +77,11 @@ function OptionSwitch({
 					onCheckedChange(value);
 					haptic("success");
 				}}
-				style={{
-					transition: "background-color 150ms ease, border-color 150ms ease",
-				}}
 				className={`p-r d-f ai-c h-5 w-9 m-0 px-1 bw-1 bs-s c-p fv:os-s fv:oo-2 fv:oc-accent ${
 					checked ? "bg-accent bc-accent" : "bg-page bc-border"
 				}`}
 			>
 				<Switch.Thumb
-					style={{
-						transition: "margin-left 150ms ease, background-color 150ms ease",
-					}}
 					className={`w-4 h-3 bs-o-xs ${checked ? "bg-page ml-3" : "bg-accent-dim ml-0"}`}
 				/>
 			</Switch.Root>

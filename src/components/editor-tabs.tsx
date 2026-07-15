@@ -1,5 +1,4 @@
 import { Button } from "@base-ui/react/button";
-import { useGSAP } from "@gsap/react";
 import {
 	ClipboardIcon,
 	ClipboardTextIcon,
@@ -8,8 +7,7 @@ import {
 	PlusIcon,
 	XIcon,
 } from "@phosphor-icons/react";
-import gsap from "gsap";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useHaptics } from "../lib/haptics";
 import { modKey } from "../lib/platform";
 import { type EditorDocument, MAX_DOCUMENTS } from "../lib/types";
@@ -29,37 +27,16 @@ function TabItem({
 	onSelect: (id: string) => void;
 	onClose: (id: string) => void;
 }) {
-	const ref = useRef<HTMLDivElement>(null);
-
-	// GSAP entrance for a freshly-added tab. Skipped while hidden (rAF is
-	// paused), which would otherwise leave it stuck at opacity 0.
-	useGSAP(
-		() => {
-			const el = ref.current;
-			if (!el || document.hidden) return;
-			gsap.set(el, { opacity: 0, scale: 0.9, transformOrigin: "left center" });
-			gsap.to(el, {
-				opacity: 1,
-				scale: 1,
-				duration: 0.25,
-				ease: "power2.out",
-				clearProps: "opacity,transform,scale",
-			});
-		},
-		{ scope: ref },
-	);
-
 	return (
 		<div
-			ref={ref}
-			className={`d-f ai-c g-2 pl-3 pr-2 py-2 brw-1 bs-s bc-border ${
+			className={`d-f ai-c g-2 pl-3 pr-2 py-2 brw-1 bs-s bc-border c-p ${
 				isActive ? "bg-page" : "bg-transparent h:bg-page"
 			}`}
 		>
 			<button
 				type="button"
 				onClick={() => onSelect(doc.id)}
-				className="d-f ai-c g-2 p-0 bg-transparent bw-0 us-none c-p fv:os-s fv:oo-2 fv:oc-accent"
+				className="d-f ai-c g-2 p-0 bg-transparent bw-0 us-none c-p fv:os-s fv:oo-2 fv:oc-accent f-1"
 			>
 				<FileCodeIcon
 					size={14}

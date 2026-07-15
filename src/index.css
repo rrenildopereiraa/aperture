@@ -12,25 +12,3 @@
 body {
 	font-family: "iA Writer Quattro", sans-serif;
 }
-
-/* Toast exit: GSAP handles the entrance (see toast-provider.tsx); this is
-   the CSS transition Base UI awaits before unmounting a dismissed toast. */
-.toast-item[data-ending-style] {
-	opacity: 0;
-	transform: translateX(1rem);
-}
-
-/* Select / dropdown popups: fade + slight scale on open and close. Base UI
-   applies data-starting-style / data-ending-style and awaits the transition
-   before unmounting. */
-.popup-anim {
-	transition:
-		opacity 140ms ease,
-		transform 140ms ease;
-	transform-origin: top center;
-}
-.popup-anim[data-starting-style],
-.popup-anim[data-ending-style] {
-	opacity: 0;
-	transform: scale(0.96) translateY(-4px);
-}
