@@ -22,7 +22,9 @@
 		"@tanstack/react-hotkeys": "^0.10.0",
 		"html-to-image": "^1.11.13",
 		"react": "^19.2.7",
+		"react-colorful": "^5.8.0",
 		"react-dom": "^19.2.7",
+		"tinycolor2": "^1.6.0",
 		"web-haptics": "^0.0.6"
 	},
 	"devDependencies": {
@@ -31,6 +33,7 @@
 		"@types/node": "^24.13.2",
 		"@types/react": "^19.2.17",
 		"@types/react-dom": "^19.2.3",
+		"@types/tinycolor2": "^1.4.6",
 		"@vitejs/plugin-react": "^5.2.0",
 		"@yummacss/canon": "^3.28.2",
 		"@yummacss/vite": "^3.28.2",
