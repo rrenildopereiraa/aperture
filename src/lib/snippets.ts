@@ -57,7 +57,7 @@ export function useToggle(initial = false) {
 }
 
 export function Greeting({ name }: Props) {
-	return <h1 className="title">Hello, {name}!</h1>;
+	return <h1 className="fs-5xl fw-100 ff-c lh-2">Hello, {name}!</h1>;
 }
 `,
 	},
@@ -75,17 +75,15 @@ export function Greeting({ name }: Props) {
 `,
 	},
 	{
-		fileName: "card.css",
+		fileName: "index.css",
 		language: "css",
-		code: `.card {
-	display: grid;
-	gap: 0.5rem;
-	padding: 1.25rem;
-	border-radius: 12px;
-	background: #ffffff;
-	box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
-}
-`,
+		code: `@import "@fontsource/ia-writer-quattro";
+
+@yummacss;
+
+:root {
+	color-scheme: light dark;
+}`,
 	},
 ];
 
