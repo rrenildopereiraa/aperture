@@ -29,7 +29,7 @@ export function ColorInput({
 					/>
 					<Popover.Portal>
 						<Popover.Positioner sideOffset={8} align="end" className="zi-90">
-							<Popover.Popup className="popup-anim p-2 bw-1 bc-border bg-surface bs-o-xs">
+							<Popover.Popup className="p-2 bw-1 bc-border bg-surface bs-o-xs">
 								<HexColorPicker color={value} onChange={onChange} />
 							</Popover.Popup>
 						</Popover.Positioner>

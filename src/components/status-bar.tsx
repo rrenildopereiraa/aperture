@@ -77,7 +77,7 @@ export function StatusBar({
 						alignItemWithTrigger={false}
 						className="zi-90 p-0 ow-0 us-none"
 					>
-						<Select.Popup className="popup-anim w-48 max-h-60 oy-auto bw-1 bc-border bg-surface py-1 bs-o-xs">
+						<Select.Popup className="w-48 max-h-60 oy-auto bw-1 bc-border bg-surface py-1 bs-o-xs">
 							<Select.List>
 								{(Object.keys(THEMES) as (keyof typeof THEMES)[]).map((id) => (
 									<Select.Item

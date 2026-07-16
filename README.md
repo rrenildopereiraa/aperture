@@ -11,7 +11,7 @@ Paste your code, pick a language, and export a polished screenshot.
 - [Yumma CSS](https://yummacss.com) for styling
 - [Shiki](https://shiki.style) for syntax highlighting
 - [Base UI](https://base-ui.com) for accessible primitives
-- [Motion](https://motion.dev) for animations
+- [react-colorful](https://github.com/omgovich/react-colorful) + [tinycolor2](https://github.com/bgrins/TinyColor) for color picking
 - [html-to-image](https://github.com/bubkoo/html-to-image) for exports
 
 ## Getting started

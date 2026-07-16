@@ -56,7 +56,7 @@ export function LanguagePicker({
 					alignItemWithTrigger={false}
 					className="zi-90 p-0 ow-0 us-none"
 				>
-					<Select.Popup className="popup-anim w-40 max-h-40 oy-auto bw-1 bc-border bg-surface py-1 bs-o-xs">
+					<Select.Popup className="w-40 max-h-40 oy-auto bw-1 bc-border bg-surface py-1 bs-o-xs">
 						<Select.List className="p-r o-auto">
 							{options.map(({ id, label }) => (
 								<Select.Item

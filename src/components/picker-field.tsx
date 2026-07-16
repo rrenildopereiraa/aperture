@@ -50,7 +50,7 @@ export function PickerField<T extends string>({
 						alignItemWithTrigger={false}
 						className="zi-90 p-0 ow-0 us-none"
 					>
-						<Select.Popup className="popup-anim w-48 bw-1 bc-border bg-surface py-1 bs-o-xs">
+						<Select.Popup className="w-48 bw-1 bc-border bg-surface py-1 bs-o-xs">
 							<Select.List>
 								{options.map((option) => (
 									<Select.Item
