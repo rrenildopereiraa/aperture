@@ -143,13 +143,14 @@ export function EditorTabBar({
 						setCopied(true);
 						setTimeout(() => setCopied(false), 1500);
 					}}
-					className="d-f ai-c jc-c w-8 h-7 c-accent-dim bg-transparent bw-1 bc-border bs-i-xs us-none c-p h:bg-page h:c-accent fv:os-s fv:oo-2 fv:oc-accent"
+					className="d-f ai-c jc-c g-2 w-8 @sm:w-24 h-7 px-2 c-accent-dim bg-transparent bw-1 bc-border bs-i-xs us-none c-p h:bg-page h:c-accent fv:os-s fv:oo-2 fv:oc-accent"
 				>
 					{copied ? (
 						<ClipboardTextIcon size={14} className="c-diff-add" weight="fill" />
 					) : (
 						<ClipboardIcon size={14} weight="fill" />
 					)}
+					<span className="d-none @sm:d-if">{copied ? "Copied" : "Copy"}</span>
 				</Button>
 
 				<ExportButton
