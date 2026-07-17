@@ -5,8 +5,8 @@ import { CaretUpIcon, CornersOutIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { CornerRadii } from "../lib/types";
 
-const RADIUS_MIN = 0;
-const RADIUS_MAX = 16;
+export const RADIUS_MIN = 0;
+export const RADIUS_MAX = 16;
 const RADIUS_TICKS = [0, 25, 50, 75, 100];
 
 const CORNERS: {

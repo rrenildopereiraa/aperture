@@ -18,6 +18,7 @@ export function StatusBar({
 	onBackgroundChange,
 	themeName,
 	onThemeChange,
+	onRandomize,
 	width,
 	height,
 }: {
@@ -27,6 +28,7 @@ export function StatusBar({
 	onBackgroundChange: (value: BackgroundPattern) => void;
 	themeName: string;
 	onThemeChange: (value: string) => void;
+	onRandomize: () => void;
 	width: number;
 	height: number;
 }) {
@@ -37,12 +39,6 @@ export function StatusBar({
 		const idx = PATTERNS.indexOf(background);
 		const next = PATTERNS[(idx + 1) % PATTERNS.length];
 		onBackgroundChange(next);
-	}
-
-	function shuffleTheme() {
-		const others = THEME_IDS.filter((id) => id !== themeName);
-		const pool = others.length > 0 ? others : THEME_IDS;
-		onThemeChange(pool[Math.floor(Math.random() * pool.length)]);
 	}
 
 	return (
@@ -104,12 +100,13 @@ export function StatusBar({
 			</Select.Root>
 
 			<Button
-				onClick={shuffleTheme}
-				title="Shuffle theme"
-				aria-label="Shuffle theme"
-				className="d-f ai-c jc-c px-2 py-1 bg-transparent c-accent-dim bw-0 c-p h:c-accent h:bg-page fv:os-s fv:oo--2 fv:oc-accent"
+				onClick={onRandomize}
+				title="Randomize appearance"
+				aria-label="Randomize appearance"
+				className="d-f ai-c jc-c g-1 px-2 py-1 bg-transparent c-accent-dim fs-xs ff-m us-none bw-0 c-p h:c-accent h:bg-page fv:os-s fv:oo--2 fv:oc-accent"
 			>
 				<ShuffleIcon size={13} weight="bold" />
+				Randomize
 			</Button>
 
 			<div className="f-1" />

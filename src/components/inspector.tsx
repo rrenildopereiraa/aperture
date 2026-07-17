@@ -39,11 +39,11 @@ const FRAME_COLOR_FIELDS: { key: keyof FrameColors; label: string }[] = [
 	{ key: "page", label: "Page" },
 	{ key: "surface", label: "Surface" },
 	{ key: "border", label: "Border" },
-	{ key: "accentDim", label: "Text" },
-	{ key: "tabBar", label: "Tab" },
-	{ key: "tabActive", label: "Tab active" },
-	{ key: "statusBarBg", label: "Status bar" },
-	{ key: "statusBarText", label: "Status bar text" },
+	{ key: "accentDim", label: "Frame Text" },
+	{ key: "tabBar", label: "Tab Bar" },
+	{ key: "tabActive", label: "Active Tab" },
+	{ key: "statusBarBg", label: "Status Bar" },
+	{ key: "statusBarText", label: "Status Bar Text" },
 ];
 
 function SectionSeparator({ label }: { label: string }) {
@@ -137,17 +137,17 @@ export function Inspector({
 			<SectionSeparator label="Frame" />
 
 			<OptionSwitch
-				label="Tab bar"
+				label="Tab Bar"
 				checked={showTabBar}
 				onCheckedChange={onShowTabBarChange}
 			/>
 			<OptionSwitch
-				label="Bounding box"
+				label="Bounding Box"
 				checked={showBoundingBox}
 				onCheckedChange={onShowBoundingBoxChange}
 			/>
 			<OptionSwitch
-				label="Status bar"
+				label="Status Bar"
 				checked={showStatusBar}
 				onCheckedChange={onShowStatusBarChange}
 			/>
@@ -155,13 +155,13 @@ export function Inspector({
 			<RadiusControl radii={radii} onRadiiChange={onRadiiChange} />
 
 			<OptionSwitch
-				label="Tab border"
+				label="Tab Border"
 				checked={showActiveTabBorder}
 				onCheckedChange={onShowActiveTabBorderChange}
 			/>
 			{showActiveTabBorder && (
 				<ColorInput
-					label="Color"
+					label="Tab Border"
 					value={frameColors.activeTabBorder}
 					onChange={(activeTabBorder) =>
 						onFrameColorsChange({ ...frameColors, activeTabBorder })
@@ -183,13 +183,13 @@ export function Inspector({
 			<SectionSeparator label="Background" />
 
 			<OptionSwitch
-				label="Grid lines"
+				label="Grid Lines"
 				checked={showGridLines}
 				onCheckedChange={onShowGridLinesChange}
 			/>
 
 			<OptionSwitch
-				label="Background patterns"
+				label="Background Patterns"
 				checked={showBackgroundPattern}
 				onCheckedChange={onShowBackgroundPatternChange}
 			/>
@@ -228,7 +228,7 @@ export function Inspector({
 					className="d-f ai-c jc-c g-2 w-100% px-2 py-2 bw-1 bs-d bc-border bg-transparent c-accent-dim fs-xs ff-m us-none c-p h:c-accent h:bc-accent fv:os-s fv:oo-2 fv:oc-accent"
 				>
 					<UploadSimpleIcon size={14} weight="fill" />
-					Import VS Code theme
+					Import VS Code Theme
 				</Button>
 			</div>
 

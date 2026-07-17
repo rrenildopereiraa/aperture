@@ -12,8 +12,10 @@ import {
 	type FontId,
 	Inspector,
 } from "./components/inspector";
+import { RADIUS_MAX, RADIUS_MIN } from "./components/radius-control";
 import { StatusBar } from "./components/status-bar";
 import { useToast } from "./components/toast-provider";
+import { randomColor } from "./lib/color";
 import { buildCommands } from "./lib/commands";
 import { captureDataUrl } from "./lib/export";
 import {
@@ -130,6 +132,35 @@ function App() {
 		setThemeName(name);
 		const colors = THEME_FRAME_COLORS[name];
 		if (colors) setFrameColors(colors);
+	}
+
+	function randomizeAll() {
+		const randomBool = () => Math.random() < 0.5;
+		const fontIds = Object.keys(FONTS) as FontId[];
+		const patterns: BackgroundPattern[] = ["stripes-right", "stripes-left"];
+		const radius =
+			RADIUS_MIN + Math.floor(Math.random() * (RADIUS_MAX - RADIUS_MIN + 1));
+
+		setShowTabBar(randomBool());
+		setShowBoundingBox(randomBool());
+		setShowGridLines(randomBool());
+		setShowBackgroundPattern(randomBool());
+		setBackground(patterns[Math.floor(Math.random() * patterns.length)]);
+		setRadii({ tl: radius, tr: radius, bl: radius, br: radius });
+		setShowActiveTabBorder(randomBool());
+		setFont(fontIds[Math.floor(Math.random() * fontIds.length)]);
+		setThemeName("Custom");
+		setFrameColors({
+			page: randomColor(),
+			surface: randomColor(),
+			border: randomColor(),
+			accentDim: randomColor(),
+			tabBar: randomColor(),
+			tabActive: randomColor(),
+			statusBarBg: randomColor(),
+			statusBarText: randomColor(),
+			activeTabBorder: randomColor(),
+		});
 	}
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: deps are size triggers
@@ -295,6 +326,7 @@ function App() {
 				onBackgroundChange={setBackground}
 				themeName={themeName}
 				onThemeChange={handleThemeChange}
+				onRandomize={randomizeAll}
 				width={dimensions.width}
 				height={dimensions.height}
 			/>
