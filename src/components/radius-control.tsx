@@ -39,7 +39,6 @@ export function RadiusControl({
 	const values = [radii.tl, radii.tr, radii.bl, radii.br];
 	const uniform = values.every((value) => value === values[0]);
 	const activeValue = uniform ? radii.tl : null;
-	const previewRadius = `${radii.tl}px ${radii.tr}px ${radii.br}px ${radii.bl}px`;
 
 	function setAll(value: number) {
 		onRadiiChange({ tl: value, tr: value, bl: value, br: value });
@@ -53,43 +52,36 @@ export function RadiusControl({
 		<div className="d-f fd-c g-2 px-2 pt-1 pb-4">
 			<span className="fs-sm ff-m c-accent-dim us-none">Border Radius</span>
 
-			<div className="d-f ai-c g-2">
-				<div
-					aria-hidden="true"
-					className="w-7 h-7 fs-0 bg-page bw-1 bs-s bc-border"
-					style={{ borderRadius: previewRadius }}
-				/>
-
-				<div className="d-f f-1 bw-1 bs-s bc-border">
-					{RADIUS_PRESETS.map(({ label, value }, index) => (
-						<button
-							key={label}
-							type="button"
-							onClick={() => setAll(value)}
-							aria-pressed={activeValue === value}
-							className={`f-1 py-1 fs-xs ff-m us-none c-p fv:os-s fv:oo--2 fv:oc-accent ${index > 0 ? "blw-1 bs-s bc-border" : ""} ${
-								activeValue === value
-									? "bg-accent c-page"
-									: "bg-transparent c-accent-dim h:c-accent"
-							}`}
-						>
-							{label}
-						</button>
-					))}
-				</div>
-
-				<Button
-					onClick={() => setSplit((value) => !value)}
-					aria-pressed={split}
-					className={`d-f ai-c jc-c w-7 h-7 fs-0 p-0 bw-1 bs-s c-p fv:os-s fv:oo-2 fv:oc-accent ${
-						split
-							? "bg-accent bc-accent c-page"
-							: "bg-transparent bc-border c-accent-dim h:c-accent h:bc-accent"
-					}`}
-				>
-					<CornersOutIcon size={14} weight="bold" />
-				</Button>
+			<div className="d-f w-100% bw-1 bs-s bc-border">
+				{RADIUS_PRESETS.map(({ label, value }, index) => (
+					<button
+						key={label}
+						type="button"
+						onClick={() => setAll(value)}
+						aria-pressed={activeValue === value}
+						className={`f-1 min-w-0 px-1 py-1 fs-xs ff-m ws-nw us-none c-p fv:os-s fv:oo--2 fv:oc-accent ${index > 0 ? "blw-1 bs-s bc-border" : ""} ${
+							activeValue === value
+								? "bg-accent c-page"
+								: "bg-transparent c-accent-dim h:c-accent"
+						}`}
+					>
+						{label}
+					</button>
+				))}
 			</div>
+
+			<Button
+				onClick={() => setSplit((value) => !value)}
+				aria-pressed={split}
+				className={`d-f ai-c jc-c as-s g-1 px-2 py-1 fs-xs ff-m us-none c-p bw-1 bs-s fv:os-s fv:oo-2 fv:oc-accent ${
+					split
+						? "bg-accent bc-accent c-page"
+						: "bg-transparent bc-border c-accent-dim h:c-accent h:bc-accent"
+				}`}
+			>
+				<CornersOutIcon size={12} weight="bold" />
+				Per-corner
+			</Button>
 
 			{split && (
 				<div
