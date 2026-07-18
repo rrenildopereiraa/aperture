@@ -162,7 +162,6 @@ function App() {
 		const pool = themePool.length > 0 ? themePool : themeNames;
 
 		setShowTabBar(randomBool());
-		setShowBoundingBox(randomBool());
 		setShowGridLines(randomBool());
 		setShowBackgroundPattern(randomBool());
 		setBackground(patterns[Math.floor(Math.random() * patterns.length)]);
