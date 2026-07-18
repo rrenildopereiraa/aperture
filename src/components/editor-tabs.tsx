@@ -99,7 +99,7 @@ export function EditorTabBar({
 
 	return (
 		<header className="d-f bbw-1 bs-s bc-border bg-surface">
-			<div className="d-f ai-c g-2 px-2 @sm:px-3 py-2 brw-1 bs-s bc-border">
+			<div className="d-f ai-c g-2 px-3 py-2 brw-1 bs-s bc-border">
 				<svg
 					width="22"
 					height="22"
@@ -115,7 +115,7 @@ export function EditorTabBar({
 					/>
 					<polygon points="50,18 64,50 50,82" fill="#93b4f5" />
 				</svg>
-				<span className="d-none @sm:d-if fs-sm ff-m fw-700 us-none ws-nw">
+				<span className="fs-sm ff-m fw-700 us-none ws-nw">
 					Pri<span className="c-accent">sharp</span>
 				</span>
 			</div>
@@ -174,14 +174,14 @@ export function EditorTabBar({
 						setShared(true);
 						setTimeout(() => setShared(false), 1500);
 					}}
-					className="d-f ai-c jc-c g-2 w-24 h-7 px-2 c-accent-dim bg-transparent bw-1 bc-border bs-i-xs us-none c-p h:bg-page h:c-accent fv:os-s fv:oo-2 fv:oc-accent"
+					className="d-f ai-c jc-c g-2 w-8 @lg:w-24 h-7 px-2 c-accent-dim bg-transparent bw-1 bc-border bs-i-xs us-none c-p h:bg-page h:c-accent fv:os-s fv:oo-2 fv:oc-accent"
 				>
 					{shared ? (
 						<CheckIcon size={14} className="c-diff-add" weight="bold" />
 					) : (
 						<LinkSimpleIcon size={14} />
 					)}
-					<span>{shared ? "Copied" : "Share"}</span>
+					<span className="d-none @lg:d-if">{shared ? "Copied" : "Share"}</span>
 				</Button>
 
 				<Button
@@ -190,14 +190,14 @@ export function EditorTabBar({
 						setCopied(true);
 						setTimeout(() => setCopied(false), 1500);
 					}}
-					className="d-f ai-c jc-c g-2 w-24 h-7 px-2 c-accent-dim bg-transparent bw-1 bc-border bs-i-xs us-none c-p h:bg-page h:c-accent fv:os-s fv:oo-2 fv:oc-accent"
+					className="d-f ai-c jc-c g-2 w-8 @lg:w-24 h-7 px-2 c-accent-dim bg-transparent bw-1 bc-border bs-i-xs us-none c-p h:bg-page h:c-accent fv:os-s fv:oo-2 fv:oc-accent"
 				>
 					{copied ? (
 						<ClipboardTextIcon size={14} className="c-diff-add" weight="fill" />
 					) : (
 						<ClipboardIcon size={14} weight="fill" />
 					)}
-					<span>{copied ? "Copied" : "Copy"}</span>
+					<span className="d-none @lg:d-if">{copied ? "Copied" : "Copy"}</span>
 				</Button>
 
 				<ExportButton
