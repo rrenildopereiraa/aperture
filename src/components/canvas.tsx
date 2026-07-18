@@ -17,7 +17,7 @@ export function Canvas({
 	showActiveTabBorder,
 	background,
 	radii,
-	font,
+	fontFamily,
 	themeName,
 	colors,
 	showBoundingBox,
@@ -36,7 +36,7 @@ export function Canvas({
 	showActiveTabBorder: boolean;
 	background: BackgroundPattern;
 	radii: CornerRadii;
-	font?: string;
+	fontFamily?: string;
 	themeName: string;
 	colors: FrameColors;
 	showBoundingBox: boolean;
@@ -61,7 +61,7 @@ export function Canvas({
 						showActiveTabBorder={showActiveTabBorder}
 						background={background}
 						radii={radii}
-						font={font}
+						fontFamily={fontFamily}
 						themeName={themeName}
 						colors={colors}
 					/>

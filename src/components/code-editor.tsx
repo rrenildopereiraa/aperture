@@ -9,14 +9,14 @@ export function CodeEditor({
 	onCodeChange,
 	language,
 	themeName,
-	font,
+	fontFamily,
 	background,
 }: {
 	code: string;
 	onCodeChange: (value: string) => void;
 	language: LanguageId;
 	themeName: string;
-	font?: string;
+	fontFamily?: string;
 	background: string;
 }) {
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -41,7 +41,10 @@ export function CodeEditor({
 	}, [code, language, themeName]);
 
 	const lines = code.split("\n");
-	const editorStyle = { tabSize: 2, ...(font ? { fontFamily: font } : {}) };
+	const editorStyle = {
+		tabSize: 2,
+		...(fontFamily ? { fontFamily } : {}),
+	};
 	const caretColor = contrastColor(background);
 
 	const setSelection = useCallback(

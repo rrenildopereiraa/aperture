@@ -1,5 +1,5 @@
 import type { ExportFormat } from "../components/format-picker";
-import { FONTS, type FontId } from "../components/inspector";
+import { FONT_FAMILIES, type FontFamilyId } from "../components/inspector";
 import { LANGUAGES, type LanguageId } from "./highlighter";
 import { modLabel } from "./platform";
 import type { BackgroundPattern } from "./types";
@@ -23,7 +23,7 @@ export function buildCommands({
 	onBackgroundChange,
 	onSetLanguage,
 	onSetFormat,
-	onSetFont,
+	onSetFontFamily,
 	onCopyCode,
 	onExport,
 	onCopyImage,
@@ -42,7 +42,7 @@ export function buildCommands({
 	onBackgroundChange: (value: BackgroundPattern) => void;
 	onSetLanguage: (value: LanguageId) => void;
 	onSetFormat: (value: ExportFormat) => void;
-	onSetFont: (value: FontId) => void;
+	onSetFontFamily: (value: FontFamilyId) => void;
 	onCopyCode: () => void;
 	onExport: () => void;
 	onCopyImage: () => void;
@@ -127,11 +127,11 @@ export function buildCommands({
 				run: () => onBackgroundChange(id),
 			}),
 		),
-		...(Object.keys(FONTS) as FontId[]).map(
+		...(Object.keys(FONT_FAMILIES) as FontFamilyId[]).map(
 			(id): Command => ({
-				id: `font-${id}`,
-				label: `Set font: ${FONTS[id].label}`,
-				run: () => onSetFont(id),
+				id: `font-family-${id}`,
+				label: `Set font family: ${FONT_FAMILIES[id].label}`,
+				run: () => onSetFontFamily(id),
 			}),
 		),
 		...(Object.entries(LANGUAGES) as [LanguageId, string][]).map(

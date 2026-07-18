@@ -58,7 +58,7 @@ export const Frame = forwardRef<
 		showActiveTabBorder: boolean;
 		background: BackgroundPattern;
 		radii: CornerRadii;
-		font?: string;
+		fontFamily?: string;
 		themeName: string;
 		colors: FrameColors;
 	}
@@ -76,13 +76,13 @@ export const Frame = forwardRef<
 		showActiveTabBorder,
 		background,
 		radii,
-		font,
+		fontFamily,
 		themeName,
 		colors,
 	},
 	ref,
 ) {
-	const fontStyle = font ? { fontFamily: font } : undefined;
+	const fontStyle = fontFamily ? { fontFamily } : undefined;
 	const borderRadius = `${radii.tl}px ${radii.tr}px ${radii.br}px ${radii.bl}px`;
 	const patternStyle = getPatternStyle(background, colors.page);
 
@@ -175,7 +175,7 @@ export const Frame = forwardRef<
 								onCodeChange={onCodeChange}
 								language={language}
 								themeName={themeName}
-								font={font}
+								fontFamily={fontFamily}
 								background={colors.surface}
 							/>
 						</div>

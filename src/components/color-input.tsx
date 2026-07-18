@@ -5,14 +5,19 @@ export function ColorInput({
 	label,
 	value,
 	onChange,
+	indent,
 }: {
 	label: string;
 	value: string;
 	onChange: (value: string) => void;
+	indent?: boolean;
 }) {
 	return (
-		<div className="d-f ai-c jc-sb g-2 px-2 pb-2">
-			<span className="fs-sm ff-m c-accent-dim us-none">{label}</span>
+		<div className={`d-f ai-c jc-sb g-2 px-2 pb-2 ${indent ? "pl-6" : ""}`}>
+			<span className="d-f ai-c g-1 fs-sm ff-m c-accent-dim us-none">
+				{indent && <span aria-hidden="true">&#8627;</span>}
+				{label}
+			</span>
 			<div className="d-f g-2">
 				<HexColorInput
 					color={value}

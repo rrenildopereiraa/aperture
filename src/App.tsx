@@ -8,8 +8,8 @@ import type { ExportFormat } from "./components/format-picker";
 import type { FrameColors } from "./components/frame";
 import {
 	type CornerRadii,
-	FONTS,
-	type FontId,
+	FONT_FAMILIES,
+	type FontFamilyId,
 	Inspector,
 } from "./components/inspector";
 import { RADIUS_MAX, RADIUS_MIN } from "./components/radius-control";
@@ -60,7 +60,7 @@ function App() {
 		bl: 0,
 		br: 0,
 	});
-	const [font, setFont] = useState<FontId>("default");
+	const [fontFamily, setFontFamily] = useState<FontFamilyId>("default");
 	const [themeName, setThemeName] = useState(THEME_NAME);
 	const [themeIsRandom, setThemeIsRandom] = useState(false);
 	const [paletteOpen, setPaletteOpen] = useState(false);
@@ -144,7 +144,7 @@ function App() {
 
 	function randomizeAll() {
 		const randomBool = () => Math.random() < 0.5;
-		const fontIds = Object.keys(FONTS) as FontId[];
+		const fontFamilyIds = Object.keys(FONT_FAMILIES) as FontFamilyId[];
 		const patterns: BackgroundPattern[] = ["stripes-right", "stripes-left"];
 		const radius =
 			RADIUS_MIN + Math.floor(Math.random() * (RADIUS_MAX - RADIUS_MIN + 1));
@@ -163,7 +163,9 @@ function App() {
 		setBackground(patterns[Math.floor(Math.random() * patterns.length)]);
 		setRadii({ tl: radius, tr: radius, bl: radius, br: radius });
 		setShowActiveTabBorder(randomBool());
-		setFont(fontIds[Math.floor(Math.random() * fontIds.length)]);
+		setFontFamily(
+			fontFamilyIds[Math.floor(Math.random() * fontFamilyIds.length)],
+		);
 		handleThemeChange(pool[Math.floor(Math.random() * pool.length)]);
 		setThemeIsRandom(true);
 	}
@@ -194,7 +196,7 @@ function App() {
 		active.language,
 		showTabBar,
 		showStatusBar,
-		font,
+		fontFamily,
 	]);
 
 	async function handleExport() {
@@ -253,7 +255,7 @@ function App() {
 		onBackgroundChange: setBackground,
 		onSetLanguage: (value) => updateActive({ language: value }),
 		onSetFormat: setFormat,
-		onSetFont: setFont,
+		onSetFontFamily: setFontFamily,
 		onCopyCode: () => {
 			navigator.clipboard.writeText(active.code);
 			toast.add({ title: "Copied" });
@@ -295,7 +297,7 @@ function App() {
 					showActiveTabBorder={showActiveTabBorder}
 					background={background}
 					radii={radii}
-					font={FONTS[font].stack}
+					fontFamily={FONT_FAMILIES[fontFamily].stack}
 					themeName={themeName}
 					colors={frameColors}
 					showBoundingBox={showBoundingBox}
@@ -322,8 +324,8 @@ function App() {
 					onBackgroundChange={setBackground}
 					radii={radii}
 					onRadiiChange={setRadii}
-					font={font}
-					onFontChange={setFont}
+					fontFamily={fontFamily}
+					onFontFamilyChange={setFontFamily}
 					themeName={themeName}
 					onThemeChange={handleManualThemeChange}
 					themeIsRandom={themeIsRandom}

@@ -31,7 +31,7 @@ function ToastInner({ children }: { children: ReactNode }) {
 	return (
 		<ToastContext.Provider value={{ add }}>
 			{children}
-			<Toast.Viewport className="p-f b-4 r-4 zi-60 d-f fd-c g-2">
+			<Toast.Viewport className="p-f t-12 r-4 zi-60 d-f fd-c g-2">
 				{toasts.map((toast) => (
 					<Toast.Root
 						key={toast.id}

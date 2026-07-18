@@ -17,13 +17,16 @@ const PATTERN_LABELS: Record<BackgroundPattern, string> = {
 	"stripes-left": "Stripes Left",
 };
 
-export type FontId =
+export type FontFamilyId =
 	| "default"
 	| "jetbrains-mono"
 	| "fira-code"
 	| "ibm-plex-mono";
 
-export const FONTS: Record<FontId, { label: string; stack?: string }> = {
+export const FONT_FAMILIES: Record<
+	FontFamilyId,
+	{ label: string; stack?: string }
+> = {
 	default: { label: "Default" },
 	"jetbrains-mono": {
 		label: "JetBrains Mono",
@@ -37,9 +40,9 @@ export const FONTS: Record<FontId, { label: string; stack?: string }> = {
 };
 
 const FRAME_COLOR_FIELDS: { key: keyof FrameColors; label: string }[] = [
-	{ key: "page", label: "Page" },
-	{ key: "surface", label: "Surface" },
-	{ key: "border", label: "Border" },
+	{ key: "page", label: "Frame Background" },
+	{ key: "surface", label: "Frame Surface" },
+	{ key: "border", label: "Frame Border" },
 	{ key: "accentDim", label: "Frame Text" },
 	{ key: "tabBar", label: "Tab Bar" },
 	{ key: "tabActive", label: "Active Tab" },
@@ -141,8 +144,8 @@ export function Inspector({
 	onBackgroundChange,
 	radii,
 	onRadiiChange,
-	font,
-	onFontChange,
+	fontFamily,
+	onFontFamilyChange,
 	themeName,
 	onThemeChange,
 	themeIsRandom,
@@ -168,8 +171,8 @@ export function Inspector({
 	onBackgroundChange: (value: BackgroundPattern) => void;
 	radii: CornerRadii;
 	onRadiiChange: (value: CornerRadii) => void;
-	font: FontId;
-	onFontChange: (value: FontId) => void;
+	fontFamily: FontFamilyId;
+	onFontFamilyChange: (value: FontFamilyId) => void;
 	themeName: string;
 	onThemeChange: (value: string) => void;
 	themeIsRandom: boolean;
@@ -218,7 +221,8 @@ export function Inspector({
 					/>
 					{showActiveTabBorder && (
 						<ColorInput
-							label="Tab Border"
+							label="Color"
+							indent
 							value={frameColors.activeTabBorder}
 							onChange={(activeTabBorder) =>
 								onFrameColorsChange({ ...frameColors, activeTabBorder })
@@ -227,16 +231,18 @@ export function Inspector({
 					)}
 
 					<PickerField
-						label="Font"
-						value={font}
-						options={(Object.keys(FONTS) as FontId[]).map((id) => ({
-							id,
-							label: FONTS[id].label,
-							style: FONTS[id].stack
-								? { fontFamily: FONTS[id].stack }
-								: undefined,
-						}))}
-						onValueChange={onFontChange}
+						label="Font Family"
+						value={fontFamily}
+						options={(Object.keys(FONT_FAMILIES) as FontFamilyId[]).map(
+							(id) => ({
+								id,
+								label: FONT_FAMILIES[id].label,
+								style: FONT_FAMILIES[id].stack
+									? { fontFamily: FONT_FAMILIES[id].stack }
+									: undefined,
+							}),
+						)}
+						onValueChange={onFontFamilyChange}
 					/>
 
 					<SectionSeparator label="Background" />

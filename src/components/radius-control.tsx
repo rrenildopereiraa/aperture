@@ -63,8 +63,8 @@ export function RadiusControl({
 							{RADIUS_TICKS.map((pct) => (
 								<span
 									key={pct}
-									className="p-a w-px h-1 bg-border"
-									style={{ left: `${pct}%`, top: -2 }}
+									className="p-a w-px h-2 bg-accent-dim"
+									style={{ left: `${pct}%`, top: -4 }}
 								/>
 							))}
 						</div>
