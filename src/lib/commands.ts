@@ -29,6 +29,7 @@ export function buildCommands({
 	onCopyImage,
 	onNewDocument,
 	onCloseDocument,
+	onRandomizeAll,
 }: {
 	showTabBar: boolean;
 	onShowTabBarChange: (value: boolean) => void;
@@ -47,6 +48,7 @@ export function buildCommands({
 	onCopyImage: () => void;
 	onNewDocument: () => void;
 	onCloseDocument: () => void;
+	onRandomizeAll: () => void;
 }): Command[] {
 	const BACKGROUND_PATTERNS: Record<BackgroundPattern, string> = {
 		"stripes-right": "Stripes Right",
@@ -63,6 +65,11 @@ export function buildCommands({
 			id: "close-snippet",
 			label: "Close snippet",
 			run: onCloseDocument,
+		},
+		{
+			id: "randomize",
+			label: "Randomize appearance",
+			run: onRandomizeAll,
 		},
 		{
 			id: "export",

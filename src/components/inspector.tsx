@@ -1,9 +1,10 @@
 import { Button } from "@base-ui/react/button";
 import { Separator } from "@base-ui/react/separator";
 import { Switch } from "@base-ui/react/switch";
+import { Tabs } from "@base-ui/react/tabs";
 import { UploadSimpleIcon } from "@phosphor-icons/react";
 import { THEMES } from "../lib/highlighter";
-import type { BackgroundPattern, CornerRadii } from "../lib/types";
+import type { BackgroundPattern, CanvasMode, CornerRadii } from "../lib/types";
 import { ColorInput } from "./color-input";
 import type { FrameColors } from "./frame";
 import { PickerField } from "./picker-field";
@@ -46,6 +47,53 @@ const FRAME_COLOR_FIELDS: { key: keyof FrameColors; label: string }[] = [
 	{ key: "statusBarText", label: "Status Bar Text" },
 ];
 
+function CanvasModeTabs({
+	mode,
+	onModeChange,
+}: {
+	mode: CanvasMode;
+	onModeChange: (value: CanvasMode) => void;
+}) {
+	return (
+		<div className="px-2 pb-4">
+			<Tabs.Root
+				value={mode}
+				onValueChange={(value) => {
+					if (value) onModeChange(value as CanvasMode);
+				}}
+			>
+				<Tabs.List className="d-f p-r g-1 p-1 bw-1 bs-s bc-border bg-page">
+					<Tabs.Tab
+						value="static"
+						className={(state) =>
+							`p-r zi-10 f-1 px-2 py-1 fs-xs ff-m ta-c us-none c-p bw-0 fv:os-s fv:oo--2 fv:oc-accent ${state.active ? "c-page fw-700" : "c-accent-dim bg-transparent h:bg-surface"}`
+						}
+					>
+						Static
+					</Tabs.Tab>
+					<Tabs.Tab
+						value="animated"
+						className={(state) =>
+							`p-r zi-10 f-1 px-2 py-1 fs-xs ff-m ta-c us-none c-p bw-0 fv:os-s fv:oo--2 fv:oc-accent ${state.active ? "c-page fw-700" : "c-accent-dim bg-transparent h:bg-surface"}`
+						}
+					>
+						Animated
+					</Tabs.Tab>
+					<Tabs.Indicator
+						className="p-a l-0 zi-0 bg-accent bs-o-xs"
+						style={{
+							translate: "var(--active-tab-left) 0",
+							width: "var(--active-tab-width)",
+							top: "var(--active-tab-top)",
+							height: "var(--active-tab-height)",
+						}}
+					/>
+				</Tabs.List>
+			</Tabs.Root>
+		</div>
+	);
+}
+
 function SectionSeparator({ label }: { label: string }) {
 	return (
 		<div className="d-f ai-c g-2 pb-2">
@@ -84,6 +132,8 @@ function OptionSwitch({
 }
 
 export function Inspector({
+	mode,
+	onModeChange,
 	showTabBar,
 	onShowTabBarChange,
 	showStatusBar,
@@ -104,10 +154,13 @@ export function Inspector({
 	onFontChange,
 	themeName,
 	onThemeChange,
+	themeIsRandom,
 	frameColors,
 	onFrameColorsChange,
 	onUploadTheme,
 }: {
+	mode: CanvasMode;
+	onModeChange: (value: CanvasMode) => void;
 	showTabBar: boolean;
 	onShowTabBarChange: (value: boolean) => void;
 	showStatusBar: boolean;
@@ -128,12 +181,15 @@ export function Inspector({
 	onFontChange: (value: FontId) => void;
 	themeName: string;
 	onThemeChange: (value: string) => void;
+	themeIsRandom: boolean;
 	frameColors: FrameColors;
 	onFrameColorsChange: (value: FrameColors) => void;
 	onUploadTheme: (file: File) => void;
 }) {
 	return (
 		<aside className="d-none @lg:d-f fd-c w-72 fs-0 min-h-0 oy-auto blw-1 bs-s bc-border bg-surface p-3">
+			<CanvasModeTabs mode={mode} onModeChange={onModeChange} />
+
 			<SectionSeparator label="Frame" />
 
 			<OptionSwitch
@@ -211,6 +267,11 @@ export function Inspector({
 				value={themeName}
 				options={Object.keys(THEMES).map((id) => ({ id, label: id }))}
 				onValueChange={onThemeChange}
+				badge={
+					themeIsRandom
+						? { text: "*", title: "Randomly selected theme" }
+						: undefined
+				}
 			/>
 
 			<div className="px-2 pb-4">

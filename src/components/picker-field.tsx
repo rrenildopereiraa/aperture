@@ -13,11 +13,13 @@ export function PickerField<T extends string>({
 	value,
 	options,
 	onValueChange,
+	badge,
 }: {
 	label?: string;
 	value: T;
 	options: PickerOption<T>[];
 	onValueChange: (value: T) => void;
+	badge?: { text: string; title: string };
 }) {
 	const selected = options.find((option) => option.id === value);
 
@@ -37,6 +39,12 @@ export function PickerField<T extends string>({
 						{() => (
 							<span className="min-w-0 o-h to-e ws-nw">
 								{selected?.label ?? value}
+								{badge && (
+									<span className="c-accent" title={badge.title}>
+										{" "}
+										{badge.text}
+									</span>
+								)}
 							</span>
 						)}
 					</Select.Value>

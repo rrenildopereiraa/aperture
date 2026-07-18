@@ -18,6 +18,7 @@ export function StatusBar({
 	onBackgroundChange,
 	themeName,
 	onThemeChange,
+	themeIsRandom,
 	onRandomize,
 	width,
 	height,
@@ -28,6 +29,7 @@ export function StatusBar({
 	onBackgroundChange: (value: BackgroundPattern) => void;
 	themeName: string;
 	onThemeChange: (value: string) => void;
+	themeIsRandom: boolean;
 	onRandomize: () => void;
 	width: number;
 	height: number;
@@ -67,6 +69,12 @@ export function StatusBar({
 						{() => (
 							<span className="min-w-0 max-w-28 o-h to-e ws-nw">
 								{themeName}
+								{themeIsRandom && (
+									<span className="c-accent" title="Randomly selected theme">
+										{" "}
+										*
+									</span>
+								)}
 							</span>
 						)}
 					</Select.Value>
@@ -98,6 +106,8 @@ export function StatusBar({
 					</Select.Positioner>
 				</Select.Portal>
 			</Select.Root>
+
+			<Separator orientation="vertical" className="h-4 w-px bg-border" />
 
 			<Button
 				onClick={onRandomize}

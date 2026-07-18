@@ -25,6 +25,7 @@ import {
 import { randomSnippet } from "./lib/snippets";
 import {
 	type BackgroundPattern,
+	type CanvasMode,
 	type EditorDocument,
 	MAX_DOCUMENTS,
 } from "./lib/types";
@@ -42,6 +43,7 @@ function App() {
 		];
 	});
 	const [activeId, setActiveId] = useState(() => documents[0].id);
+	const [mode, setMode] = useState<CanvasMode>("static");
 	const [format, setFormat] = useState<ExportFormat>("png");
 	const [exporting, setExporting] = useState(false);
 	const [showTabBar, setShowTabBar] = useState(true);
@@ -60,6 +62,7 @@ function App() {
 	});
 	const [font, setFont] = useState<FontId>("default");
 	const [themeName, setThemeName] = useState(THEME_NAME);
+	const [themeIsRandom, setThemeIsRandom] = useState(false);
 	const [paletteOpen, setPaletteOpen] = useState(false);
 	const [frameColors, setFrameColors] = useState<FrameColors>(
 		THEME_FRAME_COLORS[THEME_NAME],
@@ -116,6 +119,7 @@ function App() {
 			const result = await loadCustomTheme(await file.text());
 			setThemeName(result.name);
 			setFrameColors(result.frameColors);
+			setThemeIsRandom(false);
 			toast.add({ title: "Theme loaded", description: result.name });
 		} catch (_error) {
 			toast.add({
@@ -131,6 +135,11 @@ function App() {
 		setThemeName(name);
 		const colors = THEME_FRAME_COLORS[name];
 		if (colors) setFrameColors(colors);
+	}
+
+	function handleManualThemeChange(name: string) {
+		handleThemeChange(name);
+		setThemeIsRandom(false);
 	}
 
 	function randomizeAll() {
@@ -156,6 +165,7 @@ function App() {
 		setShowActiveTabBorder(randomBool());
 		setFont(fontIds[Math.floor(Math.random() * fontIds.length)]);
 		handleThemeChange(pool[Math.floor(Math.random() * pool.length)]);
+		setThemeIsRandom(true);
 	}
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: deps are size triggers
@@ -248,6 +258,7 @@ function App() {
 		onCopyImage: handleCopyImage,
 		onNewDocument: addDocument,
 		onCloseDocument: () => closeDocument(activeId),
+		onRandomizeAll: randomizeAll,
 	});
 
 	return (
@@ -285,9 +296,12 @@ function App() {
 					colors={frameColors}
 					showBoundingBox={showBoundingBox}
 					frameRef={frameRef}
+					mode={mode}
 				/>
 
 				<Inspector
+					mode={mode}
+					onModeChange={setMode}
 					showTabBar={showTabBar}
 					onShowTabBarChange={setShowTabBar}
 					showStatusBar={showStatusBar}
@@ -307,7 +321,8 @@ function App() {
 					font={font}
 					onFontChange={setFont}
 					themeName={themeName}
-					onThemeChange={handleThemeChange}
+					onThemeChange={handleManualThemeChange}
+					themeIsRandom={themeIsRandom}
 					frameColors={frameColors}
 					onFrameColorsChange={setFrameColors}
 					onUploadTheme={handleUploadTheme}
@@ -320,7 +335,8 @@ function App() {
 				background={background}
 				onBackgroundChange={setBackground}
 				themeName={themeName}
-				onThemeChange={handleThemeChange}
+				onThemeChange={handleManualThemeChange}
+				themeIsRandom={themeIsRandom}
 				onRandomize={randomizeAll}
 				width={dimensions.width}
 				height={dimensions.height}
