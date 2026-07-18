@@ -55,20 +55,19 @@ export function RadiusControl({
 					className="d-f ai-c g-2 f-1"
 				>
 					<Slider.Control className="p-r d-f ai-c h-5 f-1 c-p">
-						<div
-							className="p-a l-0 r-0 h-px"
-							style={{ top: "50%" }}
-							aria-hidden="true"
-						>
+						<Slider.Track className="p-r f-1 h-px bg-border">
 							{RADIUS_TICKS.map((pct) => (
 								<span
 									key={pct}
+									aria-hidden="true"
 									className="p-a w-px h-2 bg-accent-dim"
-									style={{ left: `${pct}%`, top: -4 }}
+									style={{
+										left: `${pct}%`,
+										top: "50%",
+										transform: "translate(-50%, -50%)",
+									}}
 								/>
 							))}
-						</div>
-						<Slider.Track className="p-r f-1 h-px bg-border">
 							<Slider.Indicator className="h-px bg-accent" />
 							<Slider.Thumb className="w-2 h-4 bg-accent bs-o-xs fv:os-s fv:oo-2 fv:oc-accent" />
 						</Slider.Track>

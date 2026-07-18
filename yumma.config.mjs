@@ -12,6 +12,7 @@ export default defineConfig({
 			surface: "#f1f5f9",
 			"diff-add": "#86efac",
 			"diff-remove": "#fca5a5",
+			warning: "#fcd34d",
 		},
 	},
 });

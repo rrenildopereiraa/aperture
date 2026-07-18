@@ -1,6 +1,7 @@
 import { Select } from "@base-ui/react/select";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import type { CSSProperties } from "react";
+import { Tooltip } from "./tooltip";
 
 export interface PickerOption<T extends string> {
 	id: T;
@@ -40,10 +41,9 @@ export function PickerField<T extends string>({
 							<span className="min-w-0 o-h to-e ws-nw">
 								{selected?.label ?? value}
 								{badge && (
-									<span className="c-accent" title={badge.title}>
-										{" "}
-										{badge.text}
-									</span>
+									<Tooltip content={badge.title}>
+										<span className="c-accent"> {badge.text}</span>
+									</Tooltip>
 								)}
 							</span>
 						)}

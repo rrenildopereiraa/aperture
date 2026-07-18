@@ -41,7 +41,7 @@ export function LanguagePicker({
 			<Select.Trigger className="d-f ai-c jc-sb g-1 px-3 py-1 bg-transparent c-accent-dim fs-xs ff-m us-none c-p bw-0 fv:os-s fv:oo--2 fv:oc-accent h:c-accent h:bg-page">
 				<Select.Value>
 					{() => (
-						<span className="min-w-0 o-h to-e ws-nw">
+						<span className="d-if w-12 ta-c o-h to-e ws-nw">
 							{SHORT_LABELS[value]}
 						</span>
 					)}

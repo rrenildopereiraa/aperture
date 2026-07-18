@@ -12,6 +12,7 @@ import { modKey } from "../lib/platform";
 import { type EditorDocument, MAX_DOCUMENTS } from "../lib/types";
 import { ExportButton } from "./export-button";
 import type { ExportFormat } from "./format-picker";
+import { Tooltip } from "./tooltip";
 
 function TabItem({
 	doc,
@@ -47,14 +48,16 @@ function TabItem({
 				</span>
 			</button>
 			{canClose && (
-				<button
-					type="button"
-					onClick={() => onClose(doc.id)}
-					title="Close snippet"
-					className="d-f ai-c jc-c p-0 c-accent-dim bg-transparent bw-0 c-p h:c-accent fv:os-s fv:oo-2 fv:oc-accent"
-				>
-					<XIcon size={12} weight="bold" />
-				</button>
+				<Tooltip content="Close snippet">
+					<button
+						type="button"
+						onClick={() => onClose(doc.id)}
+						aria-label="Close snippet"
+						className="d-f ai-c jc-c p-0 c-accent-dim bg-transparent bw-0 c-p h:c-accent fv:os-s fv:oo-2 fv:oc-accent"
+					>
+						<XIcon size={12} weight="bold" />
+					</button>
+				</Tooltip>
 			)}
 		</div>
 	);
@@ -107,17 +110,25 @@ export function EditorTabBar({
 					/>
 				))}
 
-				<button
-					type="button"
-					onClick={onAdd}
-					title={
+				<Tooltip
+					content={
 						atLimit ? `Snippet limit reached (${MAX_DOCUMENTS})` : "New snippet"
 					}
-					style={atLimit ? { opacity: 0.4 } : undefined}
-					className="d-f ai-c jc-c as-s w-8 brw-1 bs-s bc-border c-accent-dim bg-transparent c-p h:c-accent h:bg-page fv:os-s fv:oo--2 fv:oc-accent"
 				>
-					<PlusIcon size={14} weight="bold" />
-				</button>
+					<button
+						type="button"
+						onClick={onAdd}
+						aria-label={
+							atLimit
+								? `Snippet limit reached (${MAX_DOCUMENTS})`
+								: "New snippet"
+						}
+						style={atLimit ? { opacity: 0.4 } : undefined}
+						className="d-f ai-c jc-c as-s w-8 brw-1 bs-s bc-border c-accent-dim bg-transparent c-p h:c-accent h:bg-page fv:os-s fv:oo--2 fv:oc-accent"
+					>
+						<PlusIcon size={14} weight="bold" />
+					</button>
+				</Tooltip>
 			</div>
 
 			<div className="f-1" />

@@ -15,7 +15,13 @@ export function ColorInput({
 	return (
 		<div className={`d-f ai-c jc-sb g-2 px-2 pb-2 ${indent ? "pl-6" : ""}`}>
 			<span className="d-f ai-c g-1 fs-sm ff-m c-accent-dim us-none">
-				{indent && <span aria-hidden="true">&#8627;</span>}
+				{indent && (
+					<span
+						aria-hidden="true"
+						className="d-if w-3 h-3 blw-1 bbw-1 bs-s bc-border"
+						style={{ borderBottomLeftRadius: 6 }}
+					/>
+				)}
 				{label}
 			</span>
 			<div className="d-f g-2">

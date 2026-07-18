@@ -12,3 +12,15 @@
 body {
 	font-family: "iA Writer Quattro", sans-serif;
 }
+
+.toast-root {
+	transition:
+		opacity 150ms ease,
+		transform 150ms ease;
+}
+
+.toast-root[data-starting-style],
+.toast-root[data-ending-style] {
+	opacity: 0;
+	transform: translateY(-4px);
+}

@@ -88,11 +88,12 @@ function App() {
 			});
 			return;
 		}
+		const snippet = randomSnippet();
 		const doc: EditorDocument = {
 			id: crypto.randomUUID(),
-			fileName: "Untitled",
-			code: "",
-			language: active.language,
+			fileName: snippet.fileName,
+			code: snippet.code,
+			language: snippet.language,
 		};
 		setDocuments((docs) =>
 			docs.length >= MAX_DOCUMENTS ? docs : [...docs, doc],
@@ -120,7 +121,11 @@ function App() {
 			setThemeName(result.name);
 			setFrameColors(result.frameColors);
 			setThemeIsRandom(false);
-			toast.add({ title: "Theme loaded", description: result.name });
+			toast.add({
+				title: "Theme loaded",
+				description: result.name,
+				type: "success",
+			});
 		} catch (_error) {
 			toast.add({
 				title: "Invalid theme",
@@ -208,7 +213,7 @@ function App() {
 			link.download = `${active.fileName || "aperture"}.${format}`;
 			link.href = dataUrl;
 			link.click();
-			toast.add({ title: "Exported" });
+			toast.add({ title: "Exported", type: "success" });
 		} finally {
 			setExporting(false);
 		}
@@ -219,7 +224,11 @@ function App() {
 		const blob = await toBlob(frameRef.current, { pixelRatio: 2 });
 		if (!blob) return;
 		await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-		toast.add({ title: "Copied", description: "Image copied to clipboard" });
+		toast.add({
+			title: "Copied",
+			description: "Image copied to clipboard",
+			type: "success",
+		});
 	}
 
 	useHotkey("Mod+K", (event) => {

@@ -5,6 +5,7 @@ import { CaretDownIcon, ShuffleIcon } from "@phosphor-icons/react";
 import { type LanguageId, THEMES } from "../lib/highlighter";
 import type { BackgroundPattern } from "../lib/types";
 import { LanguagePicker } from "./language-picker";
+import { Tooltip } from "./tooltip";
 
 const PATTERN_LABELS: Record<BackgroundPattern, string> = {
 	"stripes-right": "Stripes Right",
@@ -51,7 +52,7 @@ export function StatusBar({
 
 			<Button
 				onClick={cycleBackground}
-				className="px-3 py-1 bg-transparent c-accent-dim fs-xs ff-m us-none c-p h:c-accent h:bg-page fv:os-s fv:oo--2 fv:oc-accent"
+				className="w-28 ta-c py-1 bg-transparent c-accent-dim fs-xs ff-m us-none c-p h:c-accent h:bg-page fv:os-s fv:oo--2 fv:oc-accent"
 			>
 				{PATTERN_LABELS[background]}
 			</Button>
@@ -67,13 +68,12 @@ export function StatusBar({
 				<Select.Trigger className="d-f ai-c g-1 px-3 py-1 bg-transparent c-accent-dim fs-xs ff-m us-none c-p bw-0 h:c-accent h:bg-page fv:os-s fv:oo--2 fv:oc-accent">
 					<Select.Value>
 						{() => (
-							<span className="min-w-0 max-w-28 o-h to-e ws-nw">
+							<span className="d-if w-28 o-h to-e ws-nw">
 								{themeName}
 								{themeIsRandom && (
-									<span className="c-accent" title="Randomly selected theme">
-										{" "}
-										*
-									</span>
+									<Tooltip content="Randomly selected theme">
+										<span className="c-accent"> *</span>
+									</Tooltip>
 								)}
 							</span>
 						)}
@@ -109,19 +109,20 @@ export function StatusBar({
 
 			<Separator orientation="vertical" className="h-4 w-px bg-border" />
 
-			<Button
-				onClick={onRandomize}
-				title="Randomize appearance"
-				aria-label="Randomize appearance"
-				className="d-f ai-c jc-c g-1 px-2 py-1 bg-transparent c-accent-dim fs-xs ff-m us-none bw-0 c-p h:c-accent h:bg-page fv:os-s fv:oo--2 fv:oc-accent"
-			>
-				<ShuffleIcon size={13} weight="bold" />
-				Randomize
-			</Button>
+			<Tooltip content="Randomize appearance">
+				<Button
+					onClick={onRandomize}
+					aria-label="Randomize appearance"
+					className="d-f ai-c jc-c g-1 px-2 py-1 bg-transparent c-accent-dim fs-xs ff-m us-none bw-0 c-p h:c-accent h:bg-page fv:os-s fv:oo--2 fv:oc-accent"
+				>
+					<ShuffleIcon size={13} weight="bold" />
+					Randomize
+				</Button>
+			</Tooltip>
 
 			<div className="f-1" />
 
-			<span className="px-3 py-1 ff-m fs-xs c-accent-dim">
+			<span className="d-if w-28 ta-c py-1 ff-m fs-xs c-accent-dim">
 				{width} × {height}
 			</span>
 			<Separator orientation="vertical" className="h-4 w-px bg-border" />
