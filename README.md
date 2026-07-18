@@ -1,4 +1,4 @@
-# Aperture
+# Prisharp
 
 Beautiful code screenshots, instantly.
 
