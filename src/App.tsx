@@ -1,13 +1,12 @@
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { toBlob } from "html-to-image";
+import { useQueryStates } from "nuqs";
 import { useLayoutEffect, useRef, useState } from "react";
 import { Canvas } from "./components/canvas";
 import { CommandPalette } from "./components/command-palette";
 import { EditorTabBar } from "./components/editor-tabs";
 import type { ExportFormat } from "./components/format-picker";
-import type { FrameColors } from "./components/frame";
 import {
-	type CornerRadii,
 	FONT_FAMILIES,
 	type FontFamilyId,
 	Inspector,
@@ -17,18 +16,16 @@ import { StatusBar } from "./components/status-bar";
 import { useToast } from "./components/toast-provider";
 import { buildCommands } from "./lib/commands";
 import { captureDataUrl } from "./lib/export";
-import {
-	loadCustomTheme,
-	THEME_FRAME_COLORS,
-	THEME_NAME,
-} from "./lib/highlighter";
+import { loadCustomTheme, THEME_FRAME_COLORS } from "./lib/highlighter";
 import { randomSnippet } from "./lib/snippets";
 import {
 	type BackgroundPattern,
 	type CanvasMode,
+	type CornerRadii,
 	type EditorDocument,
 	MAX_DOCUMENTS,
 } from "./lib/types";
+import { settingsParsers } from "./lib/url-state";
 
 function App() {
 	const [documents, setDocuments] = useState<EditorDocument[]>(() => {
@@ -46,32 +43,28 @@ function App() {
 	const [mode, setMode] = useState<CanvasMode>("static");
 	const [format, setFormat] = useState<ExportFormat>("png");
 	const [exporting, setExporting] = useState(false);
-	const [showTabBar, setShowTabBar] = useState(true);
-	const [showStatusBar, setShowStatusBar] = useState(true);
-	const [background, setBackground] =
-		useState<BackgroundPattern>("stripes-right");
-	const [showBackgroundPattern, setShowBackgroundPattern] = useState(true);
-	const [showGridLines, setShowGridLines] = useState(true);
 	const [showBoundingBox, setShowBoundingBox] = useState(true);
-	const [showActiveTabBorder, setShowActiveTabBorder] = useState(true);
-	const [radii, setRadii] = useState<CornerRadii>({
-		tl: 0,
-		tr: 0,
-		bl: 0,
-		br: 0,
-	});
-	const [fontFamily, setFontFamily] = useState<FontFamilyId>("default");
-	const [themeName, setThemeName] = useState(THEME_NAME);
 	const [themeIsRandom, setThemeIsRandom] = useState(false);
 	const [paletteOpen, setPaletteOpen] = useState(false);
-	const [frameColors, setFrameColors] = useState<FrameColors>(
-		THEME_FRAME_COLORS[THEME_NAME],
-	);
+	const [settings, setSettings] = useQueryStates(settingsParsers, {
+		history: "replace",
+	});
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 	const frameRef = useRef<HTMLDivElement>(null);
 	const toast = useToast();
 
 	const active = documents.find((doc) => doc.id === activeId) ?? documents[0];
+
+	const radii: CornerRadii = {
+		tl: settings.rtl,
+		tr: settings.rtr,
+		bl: settings.rbl,
+		br: settings.rbr,
+	};
+
+	function setRadii(next: CornerRadii) {
+		setSettings({ rtl: next.tl, rtr: next.tr, rbl: next.bl, rbr: next.br });
+	}
 
 	function updateActive(patch: Partial<EditorDocument>) {
 		setDocuments((docs) =>
@@ -118,8 +111,7 @@ function App() {
 	async function handleUploadTheme(file: File) {
 		try {
 			const result = await loadCustomTheme(await file.text());
-			setThemeName(result.name);
-			setFrameColors(result.frameColors);
+			setSettings({ theme: result.name, colors: result.frameColors });
 			setThemeIsRandom(false);
 			toast.add({
 				title: "Theme loaded",
@@ -137,9 +129,8 @@ function App() {
 	}
 
 	function handleThemeChange(name: string) {
-		setThemeName(name);
 		const colors = THEME_FRAME_COLORS[name];
-		if (colors) setFrameColors(colors);
+		setSettings({ theme: name, ...(colors ? { colors } : {}) });
 	}
 
 	function handleManualThemeChange(name: string) {
@@ -158,19 +149,24 @@ function App() {
 		// than generating independent random hex values per token - arbitrary
 		// colors have no contrast or taste guarantees, real themes do.
 		const themeNames = Object.keys(THEME_FRAME_COLORS);
-		const themePool = themeNames.filter((name) => name !== themeName);
+		const themePool = themeNames.filter((name) => name !== settings.theme);
 		const pool = themePool.length > 0 ? themePool : themeNames;
+		const nextTheme = pool[Math.floor(Math.random() * pool.length)];
 
-		setShowTabBar(randomBool());
-		setShowGridLines(randomBool());
-		setShowBackgroundPattern(randomBool());
-		setBackground(patterns[Math.floor(Math.random() * patterns.length)]);
-		setRadii({ tl: radius, tr: radius, bl: radius, br: radius });
-		setShowActiveTabBorder(randomBool());
-		setFontFamily(
-			fontFamilyIds[Math.floor(Math.random() * fontFamilyIds.length)],
-		);
-		handleThemeChange(pool[Math.floor(Math.random() * pool.length)]);
+		setSettings({
+			tabBar: randomBool(),
+			gridLines: randomBool(),
+			bgPattern: randomBool(),
+			pattern: patterns[Math.floor(Math.random() * patterns.length)],
+			rtl: radius,
+			rtr: radius,
+			rbl: radius,
+			rbr: radius,
+			tabBorder: randomBool(),
+			font: fontFamilyIds[Math.floor(Math.random() * fontFamilyIds.length)],
+			theme: nextTheme,
+			colors: THEME_FRAME_COLORS[nextTheme],
+		});
 		setThemeIsRandom(true);
 	}
 
@@ -198,9 +194,9 @@ function App() {
 		active.code,
 		active.fileName,
 		active.language,
-		showTabBar,
-		showStatusBar,
-		fontFamily,
+		settings.tabBar,
+		settings.statusBar,
+		settings.font,
 	]);
 
 	async function handleExport() {
@@ -230,6 +226,15 @@ function App() {
 		});
 	}
 
+	async function handleShare() {
+		await navigator.clipboard.writeText(window.location.href);
+		toast.add({
+			title: "Link copied",
+			description: "Anyone with this link sees the same settings",
+			type: "success",
+		});
+	}
+
 	useHotkey("Mod+K", (event) => {
 		event.preventDefault();
 		setPaletteOpen((open) => !open);
@@ -244,7 +249,7 @@ function App() {
 	});
 	useHotkey("Mod+B", (event) => {
 		event.preventDefault();
-		setShowBackgroundPattern((current) => !current);
+		setSettings((current) => ({ bgPattern: !current.bgPattern }));
 	});
 	useHotkey("Mod+Shift+R", (event) => {
 		event.preventDefault();
@@ -252,18 +257,18 @@ function App() {
 	});
 
 	const commands = buildCommands({
-		showTabBar,
-		onShowTabBarChange: (value) => setShowTabBar(value),
-		showStatusBar,
-		onShowStatusBarChange: (value) => setShowStatusBar(value),
-		showBackgroundPattern,
-		onShowBackgroundPatternChange: (value) => setShowBackgroundPattern(value),
-		showGridLines,
-		onShowGridLinesChange: (value) => setShowGridLines(value),
-		onBackgroundChange: setBackground,
+		showTabBar: settings.tabBar,
+		onShowTabBarChange: (value) => setSettings({ tabBar: value }),
+		showStatusBar: settings.statusBar,
+		onShowStatusBarChange: (value) => setSettings({ statusBar: value }),
+		showBackgroundPattern: settings.bgPattern,
+		onShowBackgroundPatternChange: (value) => setSettings({ bgPattern: value }),
+		showGridLines: settings.gridLines,
+		onShowGridLinesChange: (value) => setSettings({ gridLines: value }),
+		onBackgroundChange: (value) => setSettings({ pattern: value }),
 		onSetLanguage: (value) => updateActive({ language: value }),
 		onSetFormat: setFormat,
-		onSetFontFamily: setFontFamily,
+		onSetFontFamily: (value) => setSettings({ font: value }),
 		onCopyCode: () => {
 			navigator.clipboard.writeText(active.code);
 			toast.add({ title: "Copied" });
@@ -286,6 +291,7 @@ function App() {
 				onOpenPalette={() => setPaletteOpen(true)}
 				onCopy={handleCopyImage}
 				onExport={handleExport}
+				onShare={handleShare}
 				exporting={exporting}
 				format={format}
 				onFormatChange={setFormat}
@@ -298,16 +304,16 @@ function App() {
 					language={active.language}
 					fileName={active.fileName}
 					onFileNameChange={(value) => updateActive({ fileName: value })}
-					showTabBar={showTabBar}
-					showStatusBar={showStatusBar}
-					showGridLines={showGridLines}
-					showBackgroundPattern={showBackgroundPattern}
-					showActiveTabBorder={showActiveTabBorder}
-					background={background}
+					showTabBar={settings.tabBar}
+					showStatusBar={settings.statusBar}
+					showGridLines={settings.gridLines}
+					showBackgroundPattern={settings.bgPattern}
+					showActiveTabBorder={settings.tabBorder}
+					background={settings.pattern}
 					radii={radii}
-					fontFamily={FONT_FAMILIES[fontFamily].stack}
-					themeName={themeName}
-					colors={frameColors}
+					fontFamily={FONT_FAMILIES[settings.font].stack}
+					themeName={settings.theme}
+					colors={settings.colors}
 					showBoundingBox={showBoundingBox}
 					frameRef={frameRef}
 					mode={mode}
@@ -316,29 +322,33 @@ function App() {
 				<Inspector
 					mode={mode}
 					onModeChange={setMode}
-					showTabBar={showTabBar}
-					onShowTabBarChange={setShowTabBar}
-					showStatusBar={showStatusBar}
-					onShowStatusBarChange={setShowStatusBar}
-					showGridLines={showGridLines}
-					onShowGridLinesChange={setShowGridLines}
-					showBackgroundPattern={showBackgroundPattern}
-					onShowBackgroundPatternChange={setShowBackgroundPattern}
+					showTabBar={settings.tabBar}
+					onShowTabBarChange={(value) => setSettings({ tabBar: value })}
+					showStatusBar={settings.statusBar}
+					onShowStatusBarChange={(value) => setSettings({ statusBar: value })}
+					showGridLines={settings.gridLines}
+					onShowGridLinesChange={(value) => setSettings({ gridLines: value })}
+					showBackgroundPattern={settings.bgPattern}
+					onShowBackgroundPatternChange={(value) =>
+						setSettings({ bgPattern: value })
+					}
 					showBoundingBox={showBoundingBox}
 					onShowBoundingBoxChange={setShowBoundingBox}
-					showActiveTabBorder={showActiveTabBorder}
-					onShowActiveTabBorderChange={setShowActiveTabBorder}
-					background={background}
-					onBackgroundChange={setBackground}
+					showActiveTabBorder={settings.tabBorder}
+					onShowActiveTabBorderChange={(value) =>
+						setSettings({ tabBorder: value })
+					}
+					background={settings.pattern}
+					onBackgroundChange={(value) => setSettings({ pattern: value })}
 					radii={radii}
 					onRadiiChange={setRadii}
-					fontFamily={fontFamily}
-					onFontFamilyChange={setFontFamily}
-					themeName={themeName}
+					fontFamily={settings.font}
+					onFontFamilyChange={(value) => setSettings({ font: value })}
+					themeName={settings.theme}
 					onThemeChange={handleManualThemeChange}
 					themeIsRandom={themeIsRandom}
-					frameColors={frameColors}
-					onFrameColorsChange={setFrameColors}
+					frameColors={settings.colors}
+					onFrameColorsChange={(value) => setSettings({ colors: value })}
 					onUploadTheme={handleUploadTheme}
 				/>
 			</div>
@@ -346,9 +356,9 @@ function App() {
 			<StatusBar
 				language={active.language}
 				onLanguageChange={(value) => updateActive({ language: value })}
-				background={background}
-				onBackgroundChange={setBackground}
-				themeName={themeName}
+				background={settings.pattern}
+				onBackgroundChange={(value) => setSettings({ pattern: value })}
+				themeName={settings.theme}
 				onThemeChange={handleManualThemeChange}
 				themeIsRandom={themeIsRandom}
 				onRandomize={randomizeAll}

@@ -1,8 +1,10 @@
 import { Button } from "@base-ui/react/button";
 import {
+	CheckIcon,
 	ClipboardIcon,
 	ClipboardTextIcon,
 	FileCodeIcon,
+	LinkSimpleIcon,
 	MagnifyingGlassIcon,
 	PlusIcon,
 	XIcon,
@@ -72,6 +74,7 @@ export function EditorTabBar({
 	onOpenPalette,
 	onCopy,
 	onExport,
+	onShare,
 	exporting,
 	format,
 	onFormatChange,
@@ -84,11 +87,13 @@ export function EditorTabBar({
 	onOpenPalette: () => void;
 	onCopy: () => void;
 	onExport: () => void;
+	onShare: () => void;
 	exporting: boolean;
 	format: ExportFormat;
 	onFormatChange: (value: ExportFormat) => void;
 }) {
 	const [copied, setCopied] = useState(false);
+	const [shared, setShared] = useState(false);
 	const canClose = documents.length > 1;
 	const atLimit = documents.length >= MAX_DOCUMENTS;
 
@@ -143,6 +148,22 @@ export function EditorTabBar({
 					<span className="px-1 bw-1 bs-s bc-border fs-xs c-accent-dim ws-nw">
 						{modKey}K
 					</span>
+				</Button>
+
+				<Button
+					onClick={() => {
+						onShare();
+						setShared(true);
+						setTimeout(() => setShared(false), 1500);
+					}}
+					className="d-f ai-c jc-c g-2 w-8 @sm:w-24 h-7 px-2 c-accent-dim bg-transparent bw-1 bc-border bs-i-xs us-none c-p h:bg-page h:c-accent fv:os-s fv:oo-2 fv:oc-accent"
+				>
+					{shared ? (
+						<CheckIcon size={14} className="c-diff-add" weight="bold" />
+					) : (
+						<LinkSimpleIcon size={14} />
+					)}
+					<span className="d-none @sm:d-if">{shared ? "Copied" : "Share"}</span>
 				</Button>
 
 				<Button
