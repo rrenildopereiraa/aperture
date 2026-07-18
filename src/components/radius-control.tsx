@@ -78,10 +78,7 @@ export function RadiusControl({
 			</Button>
 
 			{split && (
-				<div
-					className="g-1"
-					style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}
-				>
+				<div className="d-g gtc-2 g-1">
 					{CORNERS.map(({ id, label, Icon, rotate }) => (
 						<div key={id} className="d-f bw-1 bs-s bc-border">
 							<span className="d-f ai-c jc-c w-6 fs-0 c-accent-dim brw-1 bs-s bc-border">

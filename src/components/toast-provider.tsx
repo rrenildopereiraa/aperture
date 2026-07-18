@@ -50,8 +50,8 @@ function ToastInner({ children }: { children: ReactNode }) {
 						<Toast.Root
 							key={toast.id}
 							toast={toast}
-							style={{ borderLeftColor: accent, borderLeftWidth: 3 }}
-							className="toast-root p-r d-f fd-c g-1 w-72 pl-4 pr-8 py-3 bg-surface bw-1 bs-s bc-border bs-o-xs"
+							style={{ borderLeftColor: accent }}
+							className="toast-root btw-1 brw-1 bbw-1 blw-3 p-r d-f fd-c g-1 w-72 pl-4 pr-8 py-3 bg-surface bs-s bc-border bs-o-xs"
 						>
 							<Toast.Title
 								className="ff-m fs-sm fw-700"
