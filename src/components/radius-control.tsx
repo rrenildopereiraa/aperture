@@ -95,7 +95,7 @@ export function RadiusControl({
 								aria-label={`${label} radius`}
 								className="f-1"
 							>
-								<NumberField.Input className="ff-m fs-xs c-accent-dim bg-page bs-i-xs bw-0 px-1 py-1 w-100% ta-c" />
+								<NumberField.Input className="ff-m fs-sm c-accent-dim bg-page bs-i-xs bw-0 px-1 py-1 w-100% ta-c" />
 							</NumberField.Root>
 						</div>
 					))}
