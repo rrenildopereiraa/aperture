@@ -320,7 +320,13 @@ function InspectorContent({
 				onCategoryChange={onCategoryChange}
 			/>
 
-			{isVideoFormat(format) && (
+			<OptionSwitch
+				label="Bounding Box"
+				checked={showBoundingBox}
+				onCheckedChange={onShowBoundingBoxChange}
+			/>
+
+			{isVideoFormat(format) ? (
 				<VideoSettings
 					videoStyle={videoStyle}
 					onVideoStyleChange={onVideoStyleChange}
@@ -331,124 +337,123 @@ function InspectorContent({
 					videoHold={videoHold}
 					onVideoHoldChange={onVideoHoldChange}
 				/>
-			)}
+			) : (
+				<>
+					<SectionSeparator label="Frame" />
 
-			<SectionSeparator label="Frame" />
+					<OptionSwitch
+						label="Tab Bar"
+						checked={showTabBar}
+						onCheckedChange={onShowTabBarChange}
+					/>
+					<OptionSwitch
+						label="Status Bar"
+						checked={showStatusBar}
+						onCheckedChange={onShowStatusBarChange}
+					/>
 
-			<OptionSwitch
-				label="Tab Bar"
-				checked={showTabBar}
-				onCheckedChange={onShowTabBarChange}
-			/>
-			<OptionSwitch
-				label="Bounding Box"
-				checked={showBoundingBox}
-				onCheckedChange={onShowBoundingBoxChange}
-			/>
-			<OptionSwitch
-				label="Status Bar"
-				checked={showStatusBar}
-				onCheckedChange={onShowStatusBarChange}
-			/>
+					<RadiusControl radii={radii} onRadiiChange={onRadiiChange} />
 
-			<RadiusControl radii={radii} onRadiiChange={onRadiiChange} />
-
-			<OptionSwitch
-				label="Tab Border"
-				checked={showActiveTabBorder}
-				onCheckedChange={onShowActiveTabBorderChange}
-			/>
-			{showActiveTabBorder && (
-				<ColorInput
-					label="Color"
-					indent
-					value={frameColors.activeTabBorder}
-					onChange={(activeTabBorder) =>
-						onFrameColorsChange({ ...frameColors, activeTabBorder })
-					}
-				/>
-			)}
-
-			<PickerField
-				label="Font Family"
-				value={fontFamily}
-				options={(Object.keys(FONT_FAMILIES) as FontFamilyId[]).map((id) => ({
-					id,
-					label: FONT_FAMILIES[id].label,
-					style: FONT_FAMILIES[id].stack
-						? { fontFamily: FONT_FAMILIES[id].stack }
-						: undefined,
-				}))}
-				onValueChange={onFontFamilyChange}
-			/>
-
-			<SectionSeparator label="Background" />
-
-			<OptionSwitch
-				label="Grid Lines"
-				checked={showGridLines}
-				onCheckedChange={onShowGridLinesChange}
-			/>
-
-			<OptionSwitch
-				label="Background Patterns"
-				checked={showBackgroundPattern}
-				onCheckedChange={onShowBackgroundPatternChange}
-			/>
-
-			{showBackgroundPattern && (
-				<PickerField
-					value={background}
-					options={(Object.keys(PATTERN_LABELS) as BackgroundPattern[]).map(
-						(id) => ({ id, label: PATTERN_LABELS[id] }),
+					<OptionSwitch
+						label="Tab Border"
+						checked={showActiveTabBorder}
+						onCheckedChange={onShowActiveTabBorderChange}
+					/>
+					{showActiveTabBorder && (
+						<ColorInput
+							label="Color"
+							indent
+							value={frameColors.activeTabBorder}
+							onChange={(activeTabBorder) =>
+								onFrameColorsChange({ ...frameColors, activeTabBorder })
+							}
+						/>
 					)}
-					onValueChange={onBackgroundChange}
-				/>
+
+					<PickerField
+						label="Font Family"
+						value={fontFamily}
+						options={(Object.keys(FONT_FAMILIES) as FontFamilyId[]).map(
+							(id) => ({
+								id,
+								label: FONT_FAMILIES[id].label,
+								style: FONT_FAMILIES[id].stack
+									? { fontFamily: FONT_FAMILIES[id].stack }
+									: undefined,
+							}),
+						)}
+						onValueChange={onFontFamilyChange}
+					/>
+
+					<SectionSeparator label="Background" />
+
+					<OptionSwitch
+						label="Grid Lines"
+						checked={showGridLines}
+						onCheckedChange={onShowGridLinesChange}
+					/>
+
+					<OptionSwitch
+						label="Background Patterns"
+						checked={showBackgroundPattern}
+						onCheckedChange={onShowBackgroundPatternChange}
+					/>
+
+					{showBackgroundPattern && (
+						<PickerField
+							value={background}
+							options={(Object.keys(PATTERN_LABELS) as BackgroundPattern[]).map(
+								(id) => ({ id, label: PATTERN_LABELS[id] }),
+							)}
+							onValueChange={onBackgroundChange}
+						/>
+					)}
+
+					<SectionSeparator label="Appearance" />
+
+					<PickerField
+						label="Theme"
+						value={themeName}
+						options={Object.keys(THEMES).map((id) => ({ id, label: id }))}
+						onValueChange={onThemeChange}
+						badge={
+							themeIsRandom
+								? { text: "*", title: "Randomly selected theme" }
+								: undefined
+						}
+					/>
+
+					<div className="px-2 pb-4">
+						<Button
+							onClick={() => {
+								const input = document.createElement("input");
+								input.type = "file";
+								input.accept = ".json";
+								input.onchange = () => {
+									const file = input.files?.[0];
+									if (file) onUploadTheme(file);
+								};
+								input.click();
+							}}
+							className="d-f ai-c jc-c g-2 w-100% px-2 py-2 bw-1 bs-d bc-border bg-transparent c-accent-dim fs-xs ff-m us-none c-p h:c-accent h:bc-accent fv:os-s fv:oo-2 fv:oc-accent"
+						>
+							<UploadSimpleIcon size={14} weight="fill" />
+							Import VS Code Theme
+						</Button>
+					</div>
+
+					{FRAME_COLOR_FIELDS.map(({ key, label }) => (
+						<ColorInput
+							key={key}
+							label={label}
+							value={frameColors[key]}
+							onChange={(value) =>
+								onFrameColorsChange({ ...frameColors, [key]: value })
+							}
+						/>
+					))}
+				</>
 			)}
-
-			<SectionSeparator label="Appearance" />
-
-			<PickerField
-				label="Theme"
-				value={themeName}
-				options={Object.keys(THEMES).map((id) => ({ id, label: id }))}
-				onValueChange={onThemeChange}
-				badge={
-					themeIsRandom
-						? { text: "*", title: "Randomly selected theme" }
-						: undefined
-				}
-			/>
-
-			<div className="px-2 pb-4">
-				<Button
-					onClick={() => {
-						const input = document.createElement("input");
-						input.type = "file";
-						input.accept = ".json";
-						input.onchange = () => {
-							const file = input.files?.[0];
-							if (file) onUploadTheme(file);
-						};
-						input.click();
-					}}
-					className="d-f ai-c jc-c g-2 w-100% px-2 py-2 bw-1 bs-d bc-border bg-transparent c-accent-dim fs-xs ff-m us-none c-p h:c-accent h:bc-accent fv:os-s fv:oo-2 fv:oc-accent"
-				>
-					<UploadSimpleIcon size={14} weight="fill" />
-					Import VS Code Theme
-				</Button>
-			</div>
-
-			{FRAME_COLOR_FIELDS.map(({ key, label }) => (
-				<ColorInput
-					key={key}
-					label={label}
-					value={frameColors[key]}
-					onChange={(value) =>
-						onFrameColorsChange({ ...frameColors, [key]: value })
-					}
-				/>
-			))}
 		</>
 	);
 }
