@@ -1,12 +1,11 @@
 import { Input } from "@base-ui/react/input";
-import { forwardRef, useLayoutEffect, useRef, useState } from "react";
+import { forwardRef } from "react";
 import { patternLineColor } from "../lib/color";
 import type { LanguageId } from "../lib/highlighter";
 import { LANGUAGES } from "../lib/highlighter";
-import type { AspectRatio, BackgroundPattern } from "../lib/types";
+import type { BackgroundPattern } from "../lib/types";
 import { CodeEditor } from "./code-editor";
 import type { CornerRadii } from "./inspector";
-import { RATIO_VALUES } from "./ratio-control";
 
 export interface FrameColors {
 	page: string;
@@ -42,6 +41,8 @@ function getPatternStyle(
 	}
 }
 
+const FRAME_PADDING = 64;
+
 export const Frame = forwardRef<
 	HTMLDivElement,
 	{
@@ -57,8 +58,6 @@ export const Frame = forwardRef<
 		showActiveTabBorder: boolean;
 		background: BackgroundPattern;
 		radii: CornerRadii;
-		padding: number;
-		ratio: AspectRatio;
 		fontFamily?: string;
 		themeName: string;
 		colors: FrameColors;
@@ -78,8 +77,6 @@ export const Frame = forwardRef<
 		showActiveTabBorder,
 		background,
 		radii,
-		padding,
-		ratio,
 		fontFamily,
 		themeName,
 		colors,
@@ -90,77 +87,21 @@ export const Frame = forwardRef<
 	const fontStyle = fontFamily ? { fontFamily } : undefined;
 	const borderRadius = `${radii.tl}px ${radii.tr}px ${radii.br}px ${radii.bl}px`;
 	const patternStyle = getPatternStyle(background, colors.page);
-	const innerRef = useRef<HTMLDivElement>(null);
-	const [ratioPadding, setRatioPadding] = useState({ x: 0, y: 0 });
-
-	// A specific ratio letterboxes the padded content instead of scaling or
-	// cropping it - extra space is added on whichever axis is needed to hit
-	// the target ratio, so the code is never clipped regardless of how long
-	// the snippet is.
-	useLayoutEffect(() => {
-		const node = innerRef.current;
-		if (!node) return;
-		if (ratio === "auto") {
-			setRatioPadding({ x: 0, y: 0 });
-			return;
-		}
-		const targetRatio = RATIO_VALUES[ratio];
-
-		function recompute() {
-			if (!node) return;
-			const rect = node.getBoundingClientRect();
-			const paddedWidth = rect.width + padding * 2;
-			const paddedHeight = rect.height + padding * 2;
-			if (paddedWidth / paddedHeight < targetRatio) {
-				const targetWidth = paddedHeight * targetRatio;
-				setRatioPadding({
-					x: Math.max(0, (targetWidth - paddedWidth) / 2),
-					y: 0,
-				});
-			} else {
-				const targetHeight = paddedWidth / targetRatio;
-				setRatioPadding({
-					x: 0,
-					y: Math.max(0, (targetHeight - paddedHeight) / 2),
-				});
-			}
-		}
-
-		recompute();
-		const observer = new ResizeObserver(recompute);
-		observer.observe(node);
-		return () => observer.disconnect();
-	}, [ratio, padding]);
-
-	const bleed = padding / 4;
 
 	return (
 		<div
 			ref={ref}
 			className="p-r min-w-0"
-			style={{
-				paddingTop: padding + ratioPadding.y,
-				paddingBottom: padding + ratioPadding.y,
-				paddingLeft: padding + ratioPadding.x,
-				paddingRight: padding + ratioPadding.x,
-				backgroundColor: colors.page,
-			}}
+			style={{ padding: FRAME_PADDING, backgroundColor: colors.page }}
 		>
 			<div
-				ref={innerRef}
 				className="p-r zi-10 w-192 max-w-100% o-v"
 				style={{ backgroundColor: colors.surface, borderRadius }}
 			>
 				{showBackgroundPattern && patternStyle && (
 					<div
-						className="p-a o-h zi--10"
-						style={{
-							...patternStyle,
-							top: -bleed,
-							right: -bleed,
-							bottom: -bleed,
-							left: -bleed,
-						}}
+						className="p-a t--16 r--16 b--16 l--16 o-h zi--10"
+						style={patternStyle}
 						aria-hidden="true"
 					/>
 				)}
@@ -168,39 +109,23 @@ export const Frame = forwardRef<
 				{showGridLines && (
 					<>
 						<div
-							className="p-a t-0 h-px"
-							style={{
-								backgroundColor: colors.border,
-								left: -bleed,
-								right: -bleed,
-							}}
+							className="p-a t-0 l--16 r--16 h-px"
+							style={{ backgroundColor: colors.border }}
 							aria-hidden="true"
 						/>
 						<div
-							className="p-a b-0 h-px"
-							style={{
-								backgroundColor: colors.border,
-								left: -bleed,
-								right: -bleed,
-							}}
+							className="p-a b-0 l--16 r--16 h-px"
+							style={{ backgroundColor: colors.border }}
 							aria-hidden="true"
 						/>
 						<div
-							className="p-a l-0 w-px"
-							style={{
-								backgroundColor: colors.border,
-								top: -bleed,
-								bottom: -bleed,
-							}}
+							className="p-a l-0 t--16 b--16 w-px"
+							style={{ backgroundColor: colors.border }}
 							aria-hidden="true"
 						/>
 						<div
-							className="p-a r-0 w-px"
-							style={{
-								backgroundColor: colors.border,
-								top: -bleed,
-								bottom: -bleed,
-							}}
+							className="p-a r-0 t--16 b--16 w-px"
+							style={{ backgroundColor: colors.border }}
 							aria-hidden="true"
 						/>
 					</>

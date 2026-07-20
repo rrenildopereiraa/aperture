@@ -6,16 +6,14 @@ import { Tabs } from "@base-ui/react/tabs";
 import { UploadSimpleIcon } from "@phosphor-icons/react";
 import type { RevealStyle } from "../lib/animated-export";
 import { THEMES } from "../lib/highlighter";
-import type { AspectRatio, BackgroundPattern, CornerRadii } from "../lib/types";
+import type { BackgroundPattern, CornerRadii } from "../lib/types";
 import { BottomSheet } from "./bottom-sheet";
 import { ColorInput } from "./color-input";
 import type { ExportFormat } from "./format-picker";
 import { isVideoFormat } from "./format-picker";
 import type { FrameColors } from "./frame";
-import { PaddingControl } from "./padding-control";
 import { PickerField } from "./picker-field";
 import { RadiusControl } from "./radius-control";
-import { RatioControl } from "./ratio-control";
 
 export type { CornerRadii };
 
@@ -269,10 +267,6 @@ interface InspectorContentProps {
 	onBackgroundChange: (value: BackgroundPattern) => void;
 	radii: CornerRadii;
 	onRadiiChange: (value: CornerRadii) => void;
-	padding: number;
-	onPaddingChange: (value: number) => void;
-	ratio: AspectRatio;
-	onRatioChange: (value: AspectRatio) => void;
 	fontFamily: FontFamilyId;
 	onFontFamilyChange: (value: FontFamilyId) => void;
 	themeName: string;
@@ -310,10 +304,6 @@ function InspectorContent({
 	onBackgroundChange,
 	radii,
 	onRadiiChange,
-	padding,
-	onPaddingChange,
-	ratio,
-	onRatioChange,
 	fontFamily,
 	onFontFamilyChange,
 	themeName,
@@ -363,10 +353,6 @@ function InspectorContent({
 					/>
 
 					<RadiusControl radii={radii} onRadiiChange={onRadiiChange} />
-
-					<PaddingControl padding={padding} onPaddingChange={onPaddingChange} />
-
-					<RatioControl ratio={ratio} onRatioChange={onRatioChange} />
 
 					<OptionSwitch
 						label="Tab Border"
