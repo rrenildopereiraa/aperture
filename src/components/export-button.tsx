@@ -37,48 +37,56 @@ function FormatMenuItem({
 
 export function ExportButton({
 	exporting,
+	exportProgress,
 	onExport,
 	format,
 	onFormatChange,
 }: {
 	exporting: boolean;
+	exportProgress: number | null;
 	onExport: () => void;
 	format: ExportFormat;
 	onFormatChange: (value: ExportFormat) => void;
 }) {
 	const recording = exporting && isVideoFormat(format);
 
-	const buttonClass = recording
-		? "d-f ai-c jc-c g-2 w-24 h-7 px-2 bg-transparent c-diff-remove fw-600 fs-sm ff-m us-none c-p bw-1 bc-diff-remove bs-i-xs fv:os-s fv:oo-2 fv:oc-accent"
-		: "d-f ai-c jc-c g-2 w-24 h-7 px-2 bg-accent c-page fw-600 fs-sm ff-m us-none c-p bw-0 bs-i-xs h:bg-accent-8 fv:os-s fv:oo-2 fv:oc-accent";
-	const caretClass = recording
-		? "d-f ai-c jc-c w-6 h-7 px-1 bg-transparent c-diff-remove fw-600 fs-sm ff-m us-none c-p bw-1 bc-diff-remove bs-i-xs fv:os-s fv:oo-2 fv:oc-accent"
-		: "d-f ai-c jc-c w-6 h-7 px-1 bg-accent c-page fw-600 fs-sm ff-m us-none c-p bw-0 bs-i-xs h:bg-accent-8 fv:os-s fv:oo-2 fv:oc-accent";
+	if (exporting) {
+		const percent =
+			recording && exportProgress != null
+				? ` ${Math.round(exportProgress * 100)}%`
+				: "";
+		return (
+			<Button
+				disabled
+				focusableWhenDisabled
+				className={`export-pulse d-f ai-c jc-c g-2 min-w-24 h-7 px-2 fw-600 fs-sm ff-m us-none c-p bs-i-xs fv:os-s fv:oo-2 fv:oc-accent ${
+					recording
+						? "bg-transparent c-diff-remove bw-1 bc-diff-remove"
+						: "bg-accent c-page bw-0"
+				}`}
+			>
+				<span className="d-f">
+					<SpinnerIcon size={14} />
+				</span>
+				<span>{recording ? `Recording${percent}` : "Exporting"}</span>
+			</Button>
+		);
+	}
 
 	return (
 		<div className="d-f">
 			<Button
 				onClick={onExport}
-				disabled={exporting}
-				focusableWhenDisabled
-				className={buttonClass}
+				className="d-f ai-c jc-c g-2 w-24 h-7 px-2 bg-accent c-page fw-600 fs-sm ff-m us-none c-p bw-0 bs-i-xs h:bg-accent-8 fv:os-s fv:oo-2 fv:oc-accent"
 			>
-				{exporting ? (
-					<span className="d-f">
-						<SpinnerIcon size={14} />
-					</span>
-				) : (
-					<DownloadSimpleIcon size={14} weight="fill" />
-				)}
-				<span>
-					{recording ? "Recording" : exporting ? "Exporting" : "Export"}
-				</span>
+				<DownloadSimpleIcon size={14} weight="fill" />
+				<span>Export</span>
 			</Button>
 
 			<div className="w-px bg-page/40" aria-hidden="true" />
 
 			<Menu.Root>
-				<Menu.Trigger disabled={exporting} className={caretClass}>
+				<Menu.Trigger className="d-f ai-c jc-c w-6 h-7 px-1 bg-accent c-page fw-600 fs-sm ff-m us-none c-p bw-0 bs-i-xs h:bg-accent-8 fv:os-s fv:oo-2 fv:oc-accent">
 					<CaretDownIcon size={12} weight="fill" />
 				</Menu.Trigger>
 				<Menu.Portal keepMounted>

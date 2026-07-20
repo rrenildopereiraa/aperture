@@ -54,6 +54,7 @@ function App() {
 	const [lastImageFormat, setLastImageFormat] = useState<ImageFormat>("png");
 	const [lastVideoFormat, setLastVideoFormat] = useState<VideoFormat>("webm");
 	const [exporting, setExporting] = useState(false);
+	const [exportProgress, setExportProgress] = useState<number | null>(null);
 	const [showBoundingBox, setShowBoundingBox] = useState(true);
 	const [themeIsRandom, setThemeIsRandom] = useState(false);
 	const [paletteOpen, setPaletteOpen] = useState(false);
@@ -236,7 +237,11 @@ function App() {
 			link.download = `${active.fileName || "prisharp"}.${format}`;
 			link.href = dataUrl;
 			link.click();
-			toast.add({ title: "Exported", type: "success" });
+			toast.add({
+				title: "Exported",
+				description: `Downloaded as ${format.toUpperCase()}`,
+				type: "success",
+			});
 		} finally {
 			setExporting(false);
 		}
@@ -254,6 +259,7 @@ function App() {
 			return;
 		}
 		setExporting(true);
+		setExportProgress(0);
 		try {
 			const blob = await recordAnimatedVideo({
 				frameEl: frameRef.current,
@@ -265,6 +271,7 @@ function App() {
 				startDelayMs: settings.videoStartDelay,
 				holdMs: settings.videoHold,
 				style: settings.videoStyle,
+				onProgress: setExportProgress,
 			});
 			const url = URL.createObjectURL(blob);
 			const link = document.createElement("a");
@@ -274,7 +281,11 @@ function App() {
 			link.click();
 			URL.revokeObjectURL(url);
 			if (extension === format) {
-				toast.add({ title: "Exported", type: "success" });
+				toast.add({
+					title: "Exported",
+					description: `Downloaded as ${extension.toUpperCase()}`,
+					type: "success",
+				});
 			} else {
 				toast.add({
 					title: `Exported as ${extension.toUpperCase()}`,
@@ -290,6 +301,7 @@ function App() {
 			});
 		} finally {
 			setExporting(false);
+			setExportProgress(null);
 		}
 	}
 
@@ -358,7 +370,11 @@ function App() {
 		onSetFontFamily: (value) => setSettings({ font: value }),
 		onCopyCode: () => {
 			navigator.clipboard.writeText(active.code);
-			toast.add({ title: "Copied" });
+			toast.add({
+				title: "Copied",
+				description: "Code copied to clipboard",
+				type: "success",
+			});
 		},
 		onExport: handleExportClick,
 		onCopyImage: handleCopyImage,
@@ -380,6 +396,7 @@ function App() {
 				onExport={handleExportClick}
 				onShare={handleShare}
 				exporting={exporting}
+				exportProgress={exportProgress}
 				format={format}
 				onFormatChange={handleFormatChange}
 			/>

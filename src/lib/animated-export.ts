@@ -15,6 +15,7 @@ export interface RecordAnimatedVideoOptions {
 	startDelayMs?: number;
 	holdMs?: number;
 	style?: RevealStyle;
+	onProgress?: (fraction: number) => void;
 }
 
 function pickMimeType(preferred: VideoFormat) {
@@ -87,6 +88,7 @@ export async function recordAnimatedVideo({
 	startDelayMs = 800,
 	holdMs = 2800,
 	style = "natural",
+	onProgress,
 }: RecordAnimatedVideoOptions): Promise<Blob> {
 	if (!isAnimatedExportSupported()) {
 		throw new Error("Animated export isn't supported in this browser.");
@@ -175,9 +177,20 @@ export async function recordAnimatedVideo({
 	// manual ticks on a plain interval instead of gsap's default
 	// requestAnimationFrame loop, which browsers can suspend entirely for a
 	// backgrounded/hidden tab - exactly the scenario a long recording risks
-	// if the user switches away mid-export.
+	// if the user switches away mid-export. The same interval doubles as the
+	// progress clock, since it already ticks continuously across all three
+	// phases (delay, reveal, hold).
+	const tickMs = 1000 / 30;
+	const revealEstimateMs = code.length * msPerChar;
+	const totalMs = startDelayMs + revealEstimateMs + holdMs;
+	let elapsedMs = 0;
+
 	gsap.ticker.sleep();
-	const intervalId = setInterval(() => gsap.ticker.tick(), 1000 / 30);
+	const intervalId = setInterval(() => {
+		gsap.ticker.tick();
+		elapsedMs += tickMs;
+		onProgress?.(totalMs > 0 ? Math.min(1, elapsedMs / totalMs) : 1);
+	}, tickMs);
 
 	await new Promise<void>((resolve) => {
 		setTimeout(resolve, startDelayMs);
@@ -198,6 +211,7 @@ export async function recordAnimatedVideo({
 
 	clearInterval(intervalId);
 	gsap.ticker.wake();
+	onProgress?.(1);
 	recorder.stop();
 	return recorded;
 }

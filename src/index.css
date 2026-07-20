@@ -142,6 +142,20 @@ body {
 	grid-template-rows: 1fr;
 }
 
+@keyframes export-pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.6;
+	}
+}
+
+.export-pulse {
+	animation: export-pulse 1.2s ease-in-out infinite;
+}
+
 .app-root {
 	padding-top: env(safe-area-inset-top);
 	padding-right: env(safe-area-inset-right);
