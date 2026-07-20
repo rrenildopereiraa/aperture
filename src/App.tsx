@@ -398,6 +398,8 @@ function App() {
 					showActiveTabBorder={settings.tabBorder}
 					background={settings.pattern}
 					radii={radii}
+					padding={settings.padding}
+					ratio={settings.ratio}
 					fontFamily={FONT_FAMILIES[settings.font].stack}
 					themeName={settings.theme}
 					colors={settings.colors}
@@ -441,6 +443,10 @@ function App() {
 					onBackgroundChange={(value) => setSettings({ pattern: value })}
 					radii={radii}
 					onRadiiChange={setRadii}
+					padding={settings.padding}
+					onPaddingChange={(value) => setSettings({ padding: value })}
+					ratio={settings.ratio}
+					onRatioChange={(value) => setSettings({ ratio: value })}
 					fontFamily={settings.font}
 					onFontFamilyChange={(value) => setSettings({ font: value })}
 					themeName={settings.theme}

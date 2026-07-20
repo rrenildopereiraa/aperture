@@ -7,9 +7,10 @@ import {
 } from "nuqs";
 import type { FrameColors } from "../components/frame";
 import { FONT_FAMILIES, type FontFamilyId } from "../components/inspector";
+import { RATIO_OPTIONS } from "../components/ratio-control";
 import type { RevealStyle } from "./animated-export";
 import { THEME_FRAME_COLORS, THEME_NAME } from "./highlighter";
-import type { BackgroundPattern } from "./types";
+import type { AspectRatio, BackgroundPattern } from "./types";
 
 const FRAME_COLOR_KEYS: (keyof FrameColors)[] = [
 	"page",
@@ -60,4 +61,6 @@ export const settingsParsers = {
 	videoSpeed: parseAsInteger.withDefault(35),
 	videoStartDelay: parseAsInteger.withDefault(800),
 	videoHold: parseAsInteger.withDefault(2800),
+	padding: parseAsInteger.withDefault(64),
+	ratio: parseAsStringEnum<AspectRatio>(RATIO_OPTIONS).withDefault("auto"),
 };

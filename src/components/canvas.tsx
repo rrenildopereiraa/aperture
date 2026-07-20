@@ -1,5 +1,5 @@
 import type { LanguageId } from "../lib/highlighter";
-import type { BackgroundPattern } from "../lib/types";
+import type { AspectRatio, BackgroundPattern } from "../lib/types";
 import { BoundingBox } from "./bounding-box";
 import { Frame, type FrameColors } from "./frame";
 import type { CornerRadii } from "./inspector";
@@ -17,6 +17,8 @@ export function Canvas({
 	showActiveTabBorder,
 	background,
 	radii,
+	padding,
+	ratio,
 	fontFamily,
 	themeName,
 	colors,
@@ -36,6 +38,8 @@ export function Canvas({
 	showActiveTabBorder: boolean;
 	background: BackgroundPattern;
 	radii: CornerRadii;
+	padding: number;
+	ratio: AspectRatio;
 	fontFamily?: string;
 	themeName: string;
 	colors: FrameColors;
@@ -61,6 +65,8 @@ export function Canvas({
 					showActiveTabBorder={showActiveTabBorder}
 					background={background}
 					radii={radii}
+					padding={padding}
+					ratio={ratio}
 					fontFamily={fontFamily}
 					themeName={themeName}
 					colors={colors}
