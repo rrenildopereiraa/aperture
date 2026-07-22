@@ -237,15 +237,16 @@ function CodeLine({
 							? {
 									backgroundColor: overlayColor(
 										highlightColors[segment.type],
-										segment.isPreview ? 0.12 : 0.2,
+										segment.isPreview ? 0.14 : 0.2,
 									),
-									borderColor: segment.isPreview
-										? undefined
-										: overlayColor(highlightColors[segment.type], 0.6),
+									borderColor: overlayColor(
+										highlightColors[segment.type],
+										segment.isPreview ? 0.45 : 0.6,
+									),
 								}
 							: {}),
 					}}
-					className={segment.type && !segment.isPreview ? "bw-1" : ""}
+					className={segment.type ? "bw-1" : ""}
 				>
 					{segment.content}
 				</span>
