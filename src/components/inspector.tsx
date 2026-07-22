@@ -1,7 +1,9 @@
 import { Button } from "@base-ui/react/button";
 import { Separator } from "@base-ui/react/separator";
 import { Switch } from "@base-ui/react/switch";
+import { Tabs } from "@base-ui/react/tabs";
 import { ShuffleIcon, UploadSimpleIcon } from "@phosphor-icons/react";
+import { useState } from "react";
 import { LANGUAGES, type LanguageId, THEMES } from "../lib/highlighter";
 import type { BackgroundPattern, CornerRadii } from "../lib/types";
 import { BottomSheet } from "./bottom-sheet";
@@ -50,6 +52,46 @@ const FRAME_COLOR_FIELDS: { key: keyof FrameColors; label: string }[] = [
 	{ key: "statusBarText", label: "Status Bar Text" },
 ];
 
+type SettingsTab = "layout" | "style";
+
+function SettingsTabs({
+	tab,
+	onTabChange,
+}: {
+	tab: SettingsTab;
+	onTabChange: (value: SettingsTab) => void;
+}) {
+	return (
+		<div className="mt--3 mx--3 mb-3">
+			<Tabs.Root
+				value={tab}
+				onValueChange={(value) => {
+					if (value) onTabChange(value as SettingsTab);
+				}}
+			>
+				<Tabs.List className="d-f">
+					<Tabs.Tab
+						value="layout"
+						className={(state) =>
+							`f-1 px-3 py-2 fs-xs ff-m ta-c us-none c-p brw-1 bs-s bc-border fv:os-s fv:oo--2 fv:oc-accent ${state.active ? "bg-surface c-accent-dim fw-700" : "bg-page c-accent-dim bbw-1 bc-border"}`
+						}
+					>
+						Layout
+					</Tabs.Tab>
+					<Tabs.Tab
+						value="style"
+						className={(state) =>
+							`f-1 px-3 py-2 fs-xs ff-m ta-c us-none c-p fv:os-s fv:oo--2 fv:oc-accent ${state.active ? "bg-surface c-accent-dim fw-700" : "bg-page c-accent-dim bbw-1 bc-border"}`
+						}
+					>
+						Style
+					</Tabs.Tab>
+				</Tabs.List>
+			</Tabs.Root>
+		</div>
+	);
+}
+
 function SectionSeparator({ label }: { label: string }) {
 	return (
 		<div className="d-f ai-c g-2 pb-2">
@@ -88,6 +130,7 @@ function OptionSwitch({
 }
 
 interface InspectorContentProps {
+	tab: SettingsTab;
 	showTabBar: boolean;
 	onShowTabBarChange: (value: boolean) => void;
 	showStatusBar: boolean;
@@ -115,6 +158,7 @@ interface InspectorContentProps {
 }
 
 function InspectorContent({
+	tab,
 	showTabBar,
 	onShowTabBarChange,
 	showStatusBar,
@@ -140,57 +184,61 @@ function InspectorContent({
 	onFrameColorsChange,
 	onUploadTheme,
 }: InspectorContentProps) {
+	if (tab === "layout") {
+		return (
+			<>
+				<OptionSwitch
+					label="Tab Bar"
+					checked={showTabBar}
+					onCheckedChange={onShowTabBarChange}
+				/>
+				<OptionSwitch
+					label="Bounding Box"
+					checked={showBoundingBox}
+					onCheckedChange={onShowBoundingBoxChange}
+				/>
+				<OptionSwitch
+					label="Status Bar"
+					checked={showStatusBar}
+					onCheckedChange={onShowStatusBarChange}
+				/>
+
+				<RadiusControl radii={radii} onRadiiChange={onRadiiChange} />
+
+				<OptionSwitch
+					label="Tab Border"
+					checked={showActiveTabBorder}
+					onCheckedChange={onShowActiveTabBorderChange}
+				/>
+				{showActiveTabBorder && (
+					<ColorInput
+						label="Color"
+						indent
+						value={frameColors.activeTabBorder}
+						onChange={(activeTabBorder) =>
+							onFrameColorsChange({ ...frameColors, activeTabBorder })
+						}
+					/>
+				)}
+
+				<PickerField
+					label="Font Family"
+					value={fontFamily}
+					options={(Object.keys(FONT_FAMILIES) as FontFamilyId[]).map((id) => ({
+						id,
+						label: FONT_FAMILIES[id].label,
+						style: FONT_FAMILIES[id].stack
+							? { fontFamily: FONT_FAMILIES[id].stack }
+							: undefined,
+					}))}
+					onValueChange={onFontFamilyChange}
+				/>
+			</>
+		);
+	}
+
 	return (
 		<>
-			<SectionSeparator label="Frame" />
-
-			<OptionSwitch
-				label="Tab Bar"
-				checked={showTabBar}
-				onCheckedChange={onShowTabBarChange}
-			/>
-			<OptionSwitch
-				label="Bounding Box"
-				checked={showBoundingBox}
-				onCheckedChange={onShowBoundingBoxChange}
-			/>
-			<OptionSwitch
-				label="Status Bar"
-				checked={showStatusBar}
-				onCheckedChange={onShowStatusBarChange}
-			/>
-
-			<RadiusControl radii={radii} onRadiiChange={onRadiiChange} />
-
-			<OptionSwitch
-				label="Tab Border"
-				checked={showActiveTabBorder}
-				onCheckedChange={onShowActiveTabBorderChange}
-			/>
-			{showActiveTabBorder && (
-				<ColorInput
-					label="Color"
-					indent
-					value={frameColors.activeTabBorder}
-					onChange={(activeTabBorder) =>
-						onFrameColorsChange({ ...frameColors, activeTabBorder })
-					}
-				/>
-			)}
-
-			<PickerField
-				label="Font Family"
-				value={fontFamily}
-				options={(Object.keys(FONT_FAMILIES) as FontFamilyId[]).map((id) => ({
-					id,
-					label: FONT_FAMILIES[id].label,
-					style: FONT_FAMILIES[id].stack
-						? { fontFamily: FONT_FAMILIES[id].stack }
-						: undefined,
-				}))}
-				onValueChange={onFontFamilyChange}
-			/>
-
 			<SectionSeparator label="Background" />
 
 			<OptionSwitch
@@ -269,20 +317,25 @@ export function Inspector({
 	onLanguageChange,
 	onRandomize,
 	...contentProps
-}: InspectorContentProps & {
+}: Omit<InspectorContentProps, "tab"> & {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	language: LanguageId;
 	onLanguageChange: (value: LanguageId) => void;
 	onRandomize: () => void;
 }) {
+	const [tab, setTab] = useState<SettingsTab>("layout");
+
 	return (
 		<>
 			<aside className="d-none @lg:d-f fd-c w-72 fs-0 min-h-0 oy-auto blw-1 bs-s bc-border bg-surface p-3">
-				<InspectorContent {...contentProps} />
+				<SettingsTabs tab={tab} onTabChange={setTab} />
+				<InspectorContent tab={tab} {...contentProps} />
 			</aside>
 
 			<BottomSheet open={open} onOpenChange={onOpenChange} title="Settings">
+				<SettingsTabs tab={tab} onTabChange={setTab} />
+
 				<SectionSeparator label="Quick Actions" />
 
 				<PickerField
@@ -305,7 +358,7 @@ export function Inspector({
 					</Button>
 				</div>
 
-				<InspectorContent {...contentProps} />
+				<InspectorContent tab={tab} {...contentProps} />
 			</BottomSheet>
 		</>
 	);
