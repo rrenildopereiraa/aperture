@@ -50,6 +50,9 @@ const FRAME_COLOR_FIELDS: { key: keyof FrameColors; label: string }[] = [
 	{ key: "tabActive", label: "Active Tab" },
 	{ key: "statusBarBg", label: "Status Bar" },
 	{ key: "statusBarText", label: "Status Bar Text" },
+	{ key: "highlightMark", label: "Highlight" },
+	{ key: "highlightAdd", label: "Highlight Add" },
+	{ key: "highlightRemove", label: "Highlight Remove" },
 ];
 
 type SettingsTab = "layout" | "style";

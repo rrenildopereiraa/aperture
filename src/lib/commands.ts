@@ -31,6 +31,7 @@ export function buildCommands({
 	onCloseDocument,
 	onRandomizeAll,
 	onClearHighlights,
+	onHighlightCurrentLine,
 }: {
 	showTabBar: boolean;
 	onShowTabBarChange: (value: boolean) => void;
@@ -51,6 +52,7 @@ export function buildCommands({
 	onCloseDocument: () => void;
 	onRandomizeAll: () => void;
 	onClearHighlights: () => void;
+	onHighlightCurrentLine: () => void;
 }): Command[] {
 	const BACKGROUND_PATTERNS: Record<BackgroundPattern, string> = {
 		"stripes-right": "Stripes Right",
@@ -73,6 +75,11 @@ export function buildCommands({
 			label: "Randomize appearance",
 			kbd: `${modLabel} Shift R`,
 			run: onRandomizeAll,
+		},
+		{
+			id: "highlight-current-line",
+			label: "Toggle highlight: current line",
+			run: onHighlightCurrentLine,
 		},
 		{
 			id: "clear-highlights",

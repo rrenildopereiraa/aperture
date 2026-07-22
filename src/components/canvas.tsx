@@ -1,5 +1,9 @@
 import type { LanguageId } from "../lib/highlighter";
-import type { BackgroundPattern, HighlightedWord } from "../lib/types";
+import type {
+	BackgroundPattern,
+	HighlightedLine,
+	HighlightedWord,
+} from "../lib/types";
 import { BoundingBox } from "./bounding-box";
 import { Frame, type FrameColors } from "./frame";
 import type { CornerRadii } from "./inspector";
@@ -12,8 +16,10 @@ export function Canvas({
 	onFileNameChange,
 	highlightedLines,
 	highlightedWords,
-	onToggleLineHighlight,
-	onToggleWordHighlight,
+	onCycleLineHighlight,
+	onSetLineRangeHighlight,
+	onCycleWordHighlight,
+	textareaRef,
 	showTabBar,
 	showStatusBar,
 	showGridLines,
@@ -32,10 +38,12 @@ export function Canvas({
 	language: LanguageId;
 	fileName: string;
 	onFileNameChange: (value: string) => void;
-	highlightedLines: number[];
+	highlightedLines: HighlightedLine[];
 	highlightedWords: HighlightedWord[];
-	onToggleLineHighlight: (line: number) => void;
-	onToggleWordHighlight: (line: number, tokenIndex: number) => void;
+	onCycleLineHighlight: (line: number) => void;
+	onSetLineRangeHighlight: (startLine: number, endLine: number) => void;
+	onCycleWordHighlight: (line: number, tokenIndex: number) => void;
+	textareaRef: React.RefObject<HTMLTextAreaElement | null>;
 	showTabBar: boolean;
 	showStatusBar: boolean;
 	showGridLines: boolean;
@@ -61,8 +69,10 @@ export function Canvas({
 					onFileNameChange={onFileNameChange}
 					highlightedLines={highlightedLines}
 					highlightedWords={highlightedWords}
-					onToggleLineHighlight={onToggleLineHighlight}
-					onToggleWordHighlight={onToggleWordHighlight}
+					onCycleLineHighlight={onCycleLineHighlight}
+					onSetLineRangeHighlight={onSetLineRangeHighlight}
+					onCycleWordHighlight={onCycleWordHighlight}
+					textareaRef={textareaRef}
 					showTabBar={showTabBar}
 					showStatusBar={showStatusBar}
 					showGridLines={showGridLines}

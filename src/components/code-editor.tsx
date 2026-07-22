@@ -1,9 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { contrastColor } from "../lib/color";
+import { contrastColor, overlayColor } from "../lib/color";
 import { getHighlighter, type LanguageId } from "../lib/highlighter";
-import type { HighlightedWord } from "../lib/types";
+import type {
+	HighlightedLine,
+	HighlightedWord,
+	HighlightType,
+} from "../lib/types";
 
 const TAB = "\t";
+
+export interface HighlightColors {
+	mark: string;
+	add: string;
+	remove: string;
+}
 
 function lineElementAt(
 	clientX: number,
@@ -33,28 +43,35 @@ function CodeLine({
 	lineIndex,
 	line,
 	lineTokens,
-	isHighlighted,
+	highlightType,
 	isPreview,
 	highlightedWords,
+	highlightColors,
 }: {
 	lineIndex: number;
 	line: string;
 	lineTokens: { content: string; color?: string }[];
-	isHighlighted: boolean;
+	highlightType: HighlightType | undefined;
 	isPreview: boolean;
 	highlightedWords: HighlightedWord[];
+	highlightColors: HighlightColors;
 }) {
+	const lineBackground = highlightType
+		? overlayColor(highlightColors[highlightType], 0.16)
+		: isPreview
+			? overlayColor(highlightColors.mark, 0.08)
+			: undefined;
+
 	return (
 		<div
 			data-line-index={lineIndex}
-			className={`ws-pw d-b mx--4 px-4 ${
-				isHighlighted ? "bg-accent-dim/10" : isPreview ? "bg-accent-dim/5" : ""
-			}`}
+			className="ws-pw d-b mx--4 px-4"
+			style={lineBackground ? { backgroundColor: lineBackground } : undefined}
 		>
 			{/* Fall back to the plain line while Shiki tokens load, so
 			    lines keep their real height from the first paint */}
 			{lineTokens.map((token, tokenIndex) => {
-				const isWordHighlighted = highlightedWords.some(
+				const wordHighlight = highlightedWords.find(
 					(w) => w.line === lineIndex && w.tokenIndex === tokenIndex,
 				);
 				return (
@@ -64,13 +81,20 @@ function CodeLine({
 						data-token-index={tokenIndex}
 						style={{
 							color: token.color,
-							// bc-accent-dim/50 doesn't get picked up by Yumma's scanner
-							// from this file for some reason - bg-accent-dim/10 and
-							// bw-1 (both confirmed working) stay as classes below,
-							// only the border color itself falls back to inline.
-							...(isWordHighlighted ? { borderColor: "#64748b80" } : {}),
+							...(wordHighlight
+								? {
+										backgroundColor: overlayColor(
+											highlightColors[wordHighlight.type],
+											0.2,
+										),
+										borderColor: overlayColor(
+											highlightColors[wordHighlight.type],
+											0.6,
+										),
+									}
+								: {}),
 						}}
-						className={isWordHighlighted ? "bg-accent-dim/10 bw-1" : ""}
+						className={wordHighlight ? "bw-1" : ""}
 					>
 						{token.content}
 					</span>
@@ -90,8 +114,11 @@ export function CodeEditor({
 	background,
 	highlightedLines,
 	highlightedWords,
-	onToggleLineHighlight,
-	onToggleWordHighlight,
+	onCycleLineHighlight,
+	onSetLineRangeHighlight,
+	onCycleWordHighlight,
+	textareaRef,
+	highlightColors,
 }: {
 	code: string;
 	onCodeChange: (value: string) => void;
@@ -99,16 +126,27 @@ export function CodeEditor({
 	themeName: string;
 	fontFamily?: string;
 	background: string;
-	highlightedLines: number[];
+	highlightedLines: HighlightedLine[];
 	highlightedWords: HighlightedWord[];
-	onToggleLineHighlight: (line: number) => void;
-	onToggleWordHighlight: (line: number, tokenIndex: number) => void;
+	onCycleLineHighlight: (line: number) => void;
+	onSetLineRangeHighlight: (startLine: number, endLine: number) => void;
+	onCycleWordHighlight: (line: number, tokenIndex: number) => void;
+	textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+	highlightColors: HighlightColors;
 }) {
-	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const [tokens, setTokens] = useState<{ content: string; color?: string }[][]>(
 		[],
 	);
 	const [altHoverLine, setAltHoverLine] = useState<number | null>(null);
+	const [dragPreview, setDragPreview] = useState<{
+		start: number;
+		end: number;
+	} | null>(null);
+	const [dragActive, setDragActive] = useState(false);
+	const dragStartLineRef = useRef<number | null>(null);
+	const dragMovedRef = useRef(false);
+	const dragPreviewRef = useRef(dragPreview);
+	dragPreviewRef.current = dragPreview;
 
 	useEffect(() => {
 		let cancelled = false;
@@ -198,19 +236,60 @@ export function CodeEditor({
 		[code, onCodeChange, setSelection],
 	);
 
-	// Alt+hover previews which line would be highlighted; Alt+click commits
-	// it. Held separately from word highlighting (double-click, no modifier
-	// needed) so the two mechanics never fight over the same gesture.
+	const finishDrag = useCallback(() => {
+		const startLine = dragStartLineRef.current;
+		const preview = dragPreviewRef.current;
+		if (startLine !== null) {
+			if (dragMovedRef.current && preview) {
+				onSetLineRangeHighlight(
+					Math.min(preview.start, preview.end),
+					Math.max(preview.start, preview.end),
+				);
+			} else {
+				onCycleLineHighlight(startLine);
+			}
+		}
+		dragStartLineRef.current = null;
+		dragMovedRef.current = false;
+		setDragPreview(null);
+		setDragActive(false);
+	}, [onCycleLineHighlight, onSetLineRangeHighlight]);
+
+	// Alt+drag across lines previews and commits a whole range at once (all
+	// set to "mark", or cleared if the range is already uniformly marked).
+	// A plain Alt+click (no movement) instead cycles that single line through
+	// mark -> add -> remove -> off. Tracked with window-level listeners so the
+	// drag keeps working even if the cursor leaves the textarea mid-gesture.
+	useEffect(() => {
+		if (!dragActive) return;
+		const handleWindowMouseMove = (event: MouseEvent) => {
+			const lineEl = lineElementAt(event.clientX, event.clientY);
+			if (!lineEl) return;
+			const line = Number(lineEl.dataset.lineIndex);
+			const startLine = dragStartLineRef.current;
+			if (startLine === null) return;
+			if (line !== startLine) dragMovedRef.current = true;
+			setDragPreview({ start: startLine, end: line });
+		};
+		const handleWindowMouseUp = () => finishDrag();
+		window.addEventListener("mousemove", handleWindowMouseMove);
+		window.addEventListener("mouseup", handleWindowMouseUp);
+		return () => {
+			window.removeEventListener("mousemove", handleWindowMouseMove);
+			window.removeEventListener("mouseup", handleWindowMouseUp);
+		};
+	}, [dragActive, finishDrag]);
+
 	const handleMouseMove = useCallback(
 		(event: React.MouseEvent<HTMLTextAreaElement>) => {
-			if (!event.altKey) {
+			if (dragActive || !event.altKey || event.shiftKey) {
 				setAltHoverLine(null);
 				return;
 			}
 			const lineEl = lineElementAt(event.clientX, event.clientY);
 			setAltHoverLine(lineEl ? Number(lineEl.dataset.lineIndex) : null);
 		},
-		[],
+		[dragActive],
 	);
 
 	const handleMouseLeave = useCallback(() => setAltHoverLine(null), []);
@@ -218,48 +297,57 @@ export function CodeEditor({
 	const handleMouseDown = useCallback(
 		(event: React.MouseEvent<HTMLTextAreaElement>) => {
 			if (!event.altKey) return;
-			// Alt+click toggles the line highlight instead of moving the caret.
 			event.preventDefault();
 			const lineEl = lineElementAt(event.clientX, event.clientY);
-			if (lineEl) onToggleLineHighlight(Number(lineEl.dataset.lineIndex));
-		},
-		[onToggleLineHighlight],
-	);
+			if (!lineEl) return;
+			const line = Number(lineEl.dataset.lineIndex);
 
-	const handleDoubleClick = useCallback(
-		(event: React.MouseEvent<HTMLTextAreaElement>) => {
-			// Double-click a token to highlight that word instead of the
-			// browser's native "select this word" behavior.
-			event.preventDefault();
-			const lineEl = lineElementAt(event.clientX, event.clientY);
-			const tokenEl = tokenElementAt(event.clientX, event.clientY);
-			if (!lineEl || !tokenEl) return;
-			onToggleWordHighlight(
-				Number(lineEl.dataset.lineIndex),
-				Number(tokenEl.dataset.tokenIndex),
-			);
+			// Alt+Shift+Click highlights a single word instead of a line.
+			if (event.shiftKey) {
+				const tokenEl = tokenElementAt(event.clientX, event.clientY);
+				if (tokenEl) {
+					onCycleWordHighlight(line, Number(tokenEl.dataset.tokenIndex));
+				}
+				return;
+			}
+
+			setAltHoverLine(null);
+			dragStartLineRef.current = line;
+			dragMovedRef.current = false;
+			setDragPreview({ start: line, end: line });
+			setDragActive(true);
 		},
-		[onToggleWordHighlight],
+		[onCycleWordHighlight],
 	);
 
 	return (
 		<div className="p-r ff-m fs-sm lh-4" style={editorStyle}>
-			{lines.map((line, lineIndex) => (
-				<CodeLine
-					// biome-ignore lint/suspicious/noArrayIndexKey: index is stable, lines are purely positional
-					key={lineIndex}
-					lineIndex={lineIndex}
-					line={line}
-					lineTokens={
-						tokens[lineIndex] ?? [{ content: line, color: undefined }]
-					}
-					isHighlighted={highlightedLines.includes(lineIndex)}
-					isPreview={
-						!highlightedLines.includes(lineIndex) && altHoverLine === lineIndex
-					}
-					highlightedWords={highlightedWords}
-				/>
-			))}
+			{lines.map((line, lineIndex) => {
+				const committed = highlightedLines.find((h) => h.line === lineIndex);
+				const inDragRange =
+					dragPreview &&
+					lineIndex >= Math.min(dragPreview.start, dragPreview.end) &&
+					lineIndex <= Math.max(dragPreview.start, dragPreview.end);
+				return (
+					<CodeLine
+						// biome-ignore lint/suspicious/noArrayIndexKey: index is stable, lines are purely positional
+						key={lineIndex}
+						lineIndex={lineIndex}
+						line={line}
+						lineTokens={
+							tokens[lineIndex] ?? [{ content: line, color: undefined }]
+						}
+						highlightType={
+							inDragRange && dragMovedRef.current ? "mark" : committed?.type
+						}
+						isPreview={
+							!committed && (inDragRange || altHoverLine === lineIndex)
+						}
+						highlightedWords={highlightedWords}
+						highlightColors={highlightColors}
+					/>
+				);
+			})}
 			<textarea
 				value={code}
 				onChange={(event) => onCodeChange(event.target.value)}
@@ -271,7 +359,6 @@ export function CodeEditor({
 				onMouseMove={handleMouseMove}
 				onMouseLeave={handleMouseLeave}
 				onMouseDown={handleMouseDown}
-				onDoubleClick={handleDoubleClick}
 				className="p-a t-0 l-0 w-100% h-100% p-0 m-0 bg-transparent c-transparent bw-0 os-none o-h r-none ff-m fs-sm lh-4 ws-pw"
 				style={{ ...editorStyle, caretColor }}
 			/>

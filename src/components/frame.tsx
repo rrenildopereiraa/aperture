@@ -3,7 +3,11 @@ import { forwardRef } from "react";
 import { patternLineColor } from "../lib/color";
 import type { LanguageId } from "../lib/highlighter";
 import { LANGUAGES } from "../lib/highlighter";
-import type { BackgroundPattern, HighlightedWord } from "../lib/types";
+import type {
+	BackgroundPattern,
+	HighlightedLine,
+	HighlightedWord,
+} from "../lib/types";
 import { CodeEditor } from "./code-editor";
 import type { CornerRadii } from "./inspector";
 
@@ -17,6 +21,9 @@ export interface FrameColors {
 	statusBarBg: string;
 	statusBarText: string;
 	activeTabBorder: string;
+	highlightMark: string;
+	highlightAdd: string;
+	highlightRemove: string;
 }
 
 // Diagonal hatch texture. The line color is derived from the page color
@@ -51,10 +58,12 @@ export const Frame = forwardRef<
 		language: LanguageId;
 		fileName: string;
 		onFileNameChange: (value: string) => void;
-		highlightedLines: number[];
+		highlightedLines: HighlightedLine[];
 		highlightedWords: HighlightedWord[];
-		onToggleLineHighlight: (line: number) => void;
-		onToggleWordHighlight: (line: number, tokenIndex: number) => void;
+		onCycleLineHighlight: (line: number) => void;
+		onSetLineRangeHighlight: (startLine: number, endLine: number) => void;
+		onCycleWordHighlight: (line: number, tokenIndex: number) => void;
+		textareaRef: React.RefObject<HTMLTextAreaElement | null>;
 		showTabBar: boolean;
 		showStatusBar: boolean;
 		showGridLines: boolean;
@@ -75,8 +84,10 @@ export const Frame = forwardRef<
 		onFileNameChange,
 		highlightedLines,
 		highlightedWords,
-		onToggleLineHighlight,
-		onToggleWordHighlight,
+		onCycleLineHighlight,
+		onSetLineRangeHighlight,
+		onCycleWordHighlight,
+		textareaRef,
 		showTabBar,
 		showStatusBar,
 		showGridLines,
@@ -189,8 +200,15 @@ export const Frame = forwardRef<
 								background={colors.surface}
 								highlightedLines={highlightedLines}
 								highlightedWords={highlightedWords}
-								onToggleLineHighlight={onToggleLineHighlight}
-								onToggleWordHighlight={onToggleWordHighlight}
+								onCycleLineHighlight={onCycleLineHighlight}
+								onSetLineRangeHighlight={onSetLineRangeHighlight}
+								onCycleWordHighlight={onCycleWordHighlight}
+								textareaRef={textareaRef}
+								highlightColors={{
+									mark: colors.highlightMark,
+									add: colors.highlightAdd,
+									remove: colors.highlightRemove,
+								}}
 							/>
 						</div>
 

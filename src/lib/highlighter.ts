@@ -82,6 +82,22 @@ export function readThemeFrameColors(theme: {
 			getColor(c, "statusBar.foreground") ?? f.statusBarText ?? "#9aa5ef",
 		activeTabBorder:
 			getColor(c, "tab.activeBorder") ?? f.activeTabBorder ?? "#00000000",
+		highlightMark:
+			getColor(c, "editor.wordHighlightBackground") ??
+			getColor(c, "editor.rangeHighlightBackground") ??
+			getColor(c, "editor.selectionHighlightBackground") ??
+			f.highlightMark ??
+			"#64748b",
+		highlightAdd:
+			getColor(c, "diffEditor.insertedTextBackground") ??
+			getColor(c, "diffEditor.insertedLineBackground") ??
+			f.highlightAdd ??
+			"#86efac",
+		highlightRemove:
+			getColor(c, "diffEditor.removedTextBackground") ??
+			getColor(c, "diffEditor.removedLineBackground") ??
+			f.highlightRemove ??
+			"#fca5a5",
 	};
 }
 
@@ -105,6 +121,9 @@ export const THEME_FRAME_COLORS: Record<string, FrameColors> = {
 		statusBarBg: "#f1f5f9",
 		statusBarText: "#2563eb",
 		activeTabBorder: "#2563eb",
+		highlightMark: "#64748b",
+		highlightAdd: "#86efac",
+		highlightRemove: "#fca5a5",
 	},
 	[eclipsa.name]: readThemeFrameColors(
 		eclipsa as unknown as {

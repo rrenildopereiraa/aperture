@@ -22,6 +22,7 @@ import {
 	type BackgroundPattern,
 	type CornerRadii,
 	type EditorDocument,
+	type HighlightType,
 	MAX_DOCUMENTS,
 } from "./lib/types";
 import { settingsParsers } from "./lib/url-state";
@@ -52,6 +53,7 @@ function App() {
 	});
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 	const frameRef = useRef<HTMLDivElement>(null);
+	const codeTextareaRef = useRef<HTMLTextAreaElement>(null);
 	const toast = useToast();
 
 	const active = documents.find((doc) => doc.id === activeId) ?? documents[0];
@@ -73,27 +75,74 @@ function App() {
 		);
 	}
 
-	function toggleLineHighlight(line: number) {
+	const HIGHLIGHT_CYCLE: HighlightType[] = ["mark", "add", "remove"];
+
+	function nextHighlightType(current: HighlightType | undefined) {
+		if (current === undefined) return "mark" as const;
+		const index = HIGHLIGHT_CYCLE.indexOf(current);
+		return index === HIGHLIGHT_CYCLE.length - 1
+			? null
+			: HIGHLIGHT_CYCLE[index + 1];
+	}
+
+	// A plain click (no drag) on a single line cycles its type instead of a
+	// binary toggle, so mark/add/remove are all reachable from one gesture.
+	function cycleLineHighlight(line: number) {
 		const current = active.highlightedLines;
+		const existing = current.find((l) => l.line === line);
+		const next = nextHighlightType(existing?.type);
+		const withoutLine = current.filter((l) => l.line !== line);
 		updateActive({
-			highlightedLines: current.includes(line)
-				? current.filter((l) => l !== line)
-				: [...current, line],
+			highlightedLines: next
+				? [...withoutLine, { line, type: next }]
+				: withoutLine,
 		});
 	}
 
-	function toggleWordHighlight(line: number, tokenIndex: number) {
+	// Dragging across multiple lines sets the whole range to "mark" in one
+	// gesture; dragging back over an already-all-marked range clears it.
+	function setLineRangeHighlight(startLine: number, endLine: number) {
+		const from = Math.min(startLine, endLine);
+		const to = Math.max(startLine, endLine);
+		const current = active.highlightedLines;
+		const rangeLines: number[] = [];
+		for (let line = from; line <= to; line++) rangeLines.push(line);
+		const allAlreadyMarked = rangeLines.every((line) =>
+			current.some((l) => l.line === line && l.type === "mark"),
+		);
+		const withoutRange = current.filter((l) => l.line < from || l.line > to);
+		updateActive({
+			highlightedLines: allAlreadyMarked
+				? withoutRange
+				: [
+						...withoutRange,
+						...rangeLines.map((line) => ({ line, type: "mark" as const })),
+					],
+		});
+	}
+
+	function cycleWordHighlight(line: number, tokenIndex: number) {
 		const current = active.highlightedWords;
-		const exists = current.some(
+		const existing = current.find(
 			(w) => w.line === line && w.tokenIndex === tokenIndex,
 		);
+		const next = nextHighlightType(existing?.type);
+		const withoutWord = current.filter(
+			(w) => !(w.line === line && w.tokenIndex === tokenIndex),
+		);
 		updateActive({
-			highlightedWords: exists
-				? current.filter(
-						(w) => !(w.line === line && w.tokenIndex === tokenIndex),
-					)
-				: [...current, { line, tokenIndex }],
+			highlightedWords: next
+				? [...withoutWord, { line, tokenIndex, type: next }]
+				: withoutWord,
 		});
+	}
+
+	function highlightCurrentLine() {
+		const textarea = codeTextareaRef.current;
+		if (!textarea) return;
+		const caret = textarea.selectionStart;
+		const line = active.code.slice(0, caret).split("\n").length - 1;
+		cycleLineHighlight(line);
 	}
 
 	function clearHighlights() {
@@ -317,6 +366,7 @@ function App() {
 		onCloseDocument: () => closeDocument(activeId),
 		onRandomizeAll: randomizeAll,
 		onClearHighlights: clearHighlights,
+		onHighlightCurrentLine: highlightCurrentLine,
 	});
 
 	return (
@@ -345,8 +395,10 @@ function App() {
 					onFileNameChange={(value) => updateActive({ fileName: value })}
 					highlightedLines={active.highlightedLines}
 					highlightedWords={active.highlightedWords}
-					onToggleLineHighlight={toggleLineHighlight}
-					onToggleWordHighlight={toggleWordHighlight}
+					onCycleLineHighlight={cycleLineHighlight}
+					onSetLineRangeHighlight={setLineRangeHighlight}
+					onCycleWordHighlight={cycleWordHighlight}
+					textareaRef={codeTextareaRef}
 					showTabBar={settings.tabBar}
 					showStatusBar={settings.statusBar}
 					showGridLines={settings.gridLines}
