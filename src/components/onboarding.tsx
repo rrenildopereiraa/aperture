@@ -181,45 +181,42 @@ export function Onboarding({
 		useHover();
 	const { hovered: startHovered, hoverHandlers: startHoverHandlers } =
 		useHover();
-	// Drives a staggered entrance; flipped on shortly after mount so the
-	// first paint still has everything in its "before" state.
-	//
-	// This deliberately uses a timer rather than requestAnimationFrame:
-	// rAF does not fire while the document is hidden, so opening the app in
-	// a background tab would leave every animated row stuck at opacity 0
-	// forever (the effect only re-runs when `open` changes). A timer fires
-	// regardless, so the worst case is the transition being skipped - never
-	// invisible content.
-	const [entered, setEntered] = useState(false);
-
 	useEffect(() => {
-		if (!open) {
-			setEntered(false);
-			return;
-		}
-		window.localStorage.setItem(STORAGE_KEY, "true");
-		const timer = setTimeout(() => setEntered(true), 20);
-		return () => clearTimeout(timer);
+		if (open) window.localStorage.setItem(STORAGE_KEY, "true");
 	}, [open]);
 
-	function entranceStyle(index: number): React.CSSProperties {
-		return {
-			opacity: entered ? 1 : 0,
-			transform: entered ? "translateY(0)" : "translateY(6px)",
-			transition: `opacity 300ms ease ${index * 45}ms, transform 300ms ease ${index * 45}ms`,
-		};
-	}
+	// There is deliberately no entrance animation here. A previous version
+	// faded each row in from opacity 0, which meant anything that stalled the
+	// document timeline (a hidden tab, a backgrounded window - the transition
+	// reports playState "running" with currentTime frozen at 0) left the
+	// entire panel permanently invisible with only the close button showing.
+	// Onboarding is the first thing a new user sees; it must never depend on
+	// an animation completing in order to be readable.
 
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal keepMounted>
+				{/* Both of these hide themselves explicitly rather than relying on
+				    Base UI's own close sequence. Base UI marks a closing popup with
+				    data-closed synchronously but only applies the `hidden` attribute
+				    from an animation-frame callback, so a stalled timeline (hidden
+				    tab, backgrounded window) leaves a dismissed dialog on screen and
+				    blocking the app. An explicit display keeps dismissal instant and
+				    unconditional. It also sidesteps `hidden`'s low-specificity UA
+				    `display:none` losing to the d-f utility class on the popup. */}
 				<Dialog.Backdrop
 					className="p-f i-0 zi-80"
-					style={{ backgroundColor: colors.page }}
+					style={{
+						backgroundColor: colors.page,
+						...(open ? {} : { display: "none" }),
+					}}
 				/>
 				<Dialog.Popup
 					className="p-f i-0 zi-90 d-f fd-c @lg:fd-r"
-					style={{ backgroundColor: colors.page }}
+					style={{
+						backgroundColor: colors.page,
+						...(open ? {} : { display: "none" }),
+					}}
 				>
 					<Dialog.Close
 						aria-label="Close"
@@ -231,7 +228,7 @@ export function Onboarding({
 					</Dialog.Close>
 
 					<div className="f-1 d-f fd-c jc-c g-4 px-6 @lg:px-12 py-8 min-w-0">
-						<div style={entranceStyle(0)}>
+						<div>
 							<Dialog.Title
 								className="fs-3xl ff-m fw-700 us-none m-0"
 								style={{ color: colors.accentDim }}
@@ -249,12 +246,8 @@ export function Onboarding({
 						</div>
 
 						<div className="d-f fd-c g-2">
-							{SHORTCUTS.map(({ keys, description }, index) => (
-								<div
-									key={keys}
-									className="d-f ai-c g-3"
-									style={entranceStyle(index + 1)}
-								>
+							{SHORTCUTS.map(({ keys, description }) => (
+								<div key={keys} className="d-f ai-c g-3">
 									<span
 										className="px-2 py-1 bw-1 bs-s fs-xs ff-m ws-nw ta-c"
 										style={{
@@ -276,7 +269,7 @@ export function Onboarding({
 							))}
 						</div>
 
-						<div style={entranceStyle(SHORTCUTS.length + 1)}>
+						<div>
 							<Button
 								onClick={() => onOpenChange(false)}
 								className="d-f ai-c g-2 px-4 py-2 bw-1 bs-s fs-sm ff-m us-none c-p fv:os-s fv:oo-2 fv:oc-accent"
@@ -299,10 +292,7 @@ export function Onboarding({
 							borderColor: colors.border,
 						}}
 					>
-						<div
-							className="w-100% d-f jc-c"
-							style={entranceStyle(SHORTCUTS.length + 2)}
-						>
+						<div className="w-100% d-f jc-c">
 							<CodePreview frameColors={frameColors} themeName={themeName} />
 						</div>
 					</div>
