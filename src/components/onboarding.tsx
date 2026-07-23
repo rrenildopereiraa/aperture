@@ -57,8 +57,12 @@ export function Onboarding({
 					style={{ backgroundColor: overlayColor(colors.page, 0.6) }}
 				/>
 				<Dialog.Popup
-					className="p-f t-50% l-50% ttx--half tty--half zi-90 w-120 max-w-90% bw-1 bs-s bs-o-xs"
+					className="p-f t-50% l-50% zi-90 w-120 max-w-90% bw-1 bs-s bs-o-xs"
 					style={{
+						// ttx--half and tty--half both write `transform`, so using
+						// both classes together silently drops one axis - the
+						// centering has to be a single declaration.
+						transform: "translate(-50%, -50%)",
 						backgroundColor: colors.surface,
 						borderColor: colors.border,
 					}}
