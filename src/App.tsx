@@ -11,6 +11,7 @@ import {
 	type FontFamilyId,
 	Inspector,
 } from "./components/inspector";
+import { Onboarding, useOnboarding } from "./components/onboarding";
 import { RADIUS_MAX, RADIUS_MIN } from "./components/radius-control";
 import { StatusBar } from "./components/status-bar";
 import { useToast } from "./components/toast-provider";
@@ -49,6 +50,7 @@ function App() {
 	const [showBoundingBox, setShowBoundingBox] = useState(true);
 	const [themeIsRandom, setThemeIsRandom] = useState(false);
 	const [paletteOpen, setPaletteOpen] = useState(false);
+	const { open: onboardingOpen, setOpen: setOnboardingOpen } = useOnboarding();
 	const [inspectorOpen, setInspectorOpen] = useState(false);
 	const [settings, setSettings] = useQueryStates(settingsParsers, {
 		history: "replace",
@@ -280,7 +282,6 @@ function App() {
 			rtr: radius,
 			rbl: radius,
 			rbr: radius,
-			tabBorder: randomBool(),
 			font: fontFamilyIds[Math.floor(Math.random() * fontFamilyIds.length)],
 			theme: nextTheme,
 			colors: THEME_FRAME_COLORS[nextTheme],
@@ -377,6 +378,7 @@ function App() {
 		onRandomizeAll: randomizeAll,
 		onClearHighlights: clearHighlights,
 		onHighlightCurrentLine: highlightCurrentLine,
+		onShowShortcuts: () => setOnboardingOpen(true),
 	});
 
 	return (
@@ -417,7 +419,6 @@ function App() {
 					showStatusBar={settings.statusBar}
 					showGridLines={settings.gridLines}
 					showBackgroundPattern={settings.bgPattern}
-					showActiveTabBorder={settings.tabBorder}
 					background={settings.pattern}
 					radii={radii}
 					fontFamily={FONT_FAMILIES[settings.font].stack}
@@ -445,10 +446,6 @@ function App() {
 					}
 					showBoundingBox={showBoundingBox}
 					onShowBoundingBoxChange={setShowBoundingBox}
-					showActiveTabBorder={settings.tabBorder}
-					onShowActiveTabBorderChange={(value) =>
-						setSettings({ tabBorder: value })
-					}
 					background={settings.pattern}
 					onBackgroundChange={(value) => setSettings({ pattern: value })}
 					radii={radii}
@@ -480,6 +477,8 @@ function App() {
 				onOpenChange={setPaletteOpen}
 				commands={commands}
 			/>
+
+			<Onboarding open={onboardingOpen} onOpenChange={setOnboardingOpen} />
 		</div>
 	);
 }
