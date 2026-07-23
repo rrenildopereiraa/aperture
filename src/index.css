@@ -59,27 +59,6 @@ body {
 	bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
 
-.dialog-backdrop {
-	transition: opacity 150ms ease;
-}
-
-.dialog-backdrop[data-starting-style],
-.dialog-backdrop[data-ending-style] {
-	opacity: 0;
-}
-
-.dialog-popup {
-	transition:
-		opacity 150ms ease,
-		transform 150ms ease;
-}
-
-.dialog-popup[data-starting-style],
-.dialog-popup[data-ending-style] {
-	opacity: 0;
-	transform: translate(-50%, -8px);
-}
-
 .select-popup,
 .popover-popup,
 .menu-popup {

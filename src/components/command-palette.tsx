@@ -56,11 +56,11 @@ export function CommandPalette({
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal keepMounted>
 				<Dialog.Backdrop
-					className="dialog-backdrop p-f i-0 zi-80"
+					className="p-f i-0 zi-80"
 					style={{ backgroundColor: overlayColor(colors.page, 0.6) }}
 				/>
 				<Dialog.Popup
-					className="dialog-popup p-f t-24 l-50% ttx--half zi-90 w-112 max-w-100% bw-1 bs-s bs-o-xs"
+					className="p-f t-24 l-50% ttx--half zi-90 w-112 max-w-100% bw-1 bs-s bs-o-xs"
 					style={{
 						backgroundColor: colors.surface,
 						borderColor: colors.border,

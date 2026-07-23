@@ -4,19 +4,21 @@ import {
 	ClipboardIcon,
 	ClipboardTextIcon,
 	FileCodeIcon,
+	GithubLogoIcon,
 	LinkSimpleIcon,
 	MagnifyingGlassIcon,
 	PlusIcon,
 	XIcon,
 } from "@phosphor-icons/react";
-import gsap from "gsap";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useChromeTheme, useHover } from "../lib/chrome-theme";
 import { modKey } from "../lib/platform";
 import { type EditorDocument, MAX_DOCUMENTS } from "../lib/types";
 import { ExportButton } from "./export-button";
 import type { ExportFormat } from "./format-picker";
 import { Tooltip } from "./tooltip";
+
+const GITHUB_URL = "https://github.com/rrenildopereiraa/aperture";
 
 function TabItem({
 	doc,
@@ -35,46 +37,9 @@ function TabItem({
 	const { hovered, hoverHandlers } = useHover();
 	const { hovered: closeHovered, hoverHandlers: closeHoverHandlers } =
 		useHover();
-	const ref = useRef<HTMLDivElement>(null);
-	const closingRef = useRef(false);
-
-	useEffect(() => {
-		const el = ref.current;
-		if (!el) return;
-		const tween = gsap.from(el, {
-			x: 24,
-			opacity: 0,
-			duration: 0.2,
-			ease: "power2.out",
-		});
-		return () => {
-			tween.kill();
-			// Strict Mode double-invokes this effect in dev; without reverting
-			// the styles the killed tween already applied, the second run
-			// would animate from garbage back to that same garbage.
-			gsap.set(el, { clearProps: "transform,opacity" });
-		};
-	}, []);
-
-	function handleClose() {
-		const el = ref.current;
-		if (!el || closingRef.current) return;
-		closingRef.current = true;
-		gsap.to(el, {
-			x: 24,
-			opacity: 0,
-			width: 0,
-			paddingLeft: 0,
-			paddingRight: 0,
-			duration: 0.18,
-			ease: "power2.in",
-			onComplete: () => onClose(doc.id),
-		});
-	}
 
 	return (
 		<div
-			ref={ref}
 			className="d-f ai-c g-2 pl-3 pr-2 py-2 brw-1 bs-s c-p o-h"
 			style={{
 				borderColor: colors.border,
@@ -100,7 +65,7 @@ function TabItem({
 				<Tooltip content="Close snippet">
 					<button
 						type="button"
-						onClick={handleClose}
+						onClick={() => onClose(doc.id)}
 						aria-label="Close snippet"
 						className="d-f ai-c jc-c p-0 bg-transparent bw-0 c-p fv:os-s fv:oo-2 fv:oc-accent"
 						style={{ color: closeHovered ? colors.accent : colors.accentDim }}
@@ -152,6 +117,8 @@ export function EditorTabBar({
 	const { hovered: shareHovered, hoverHandlers: shareHoverHandlers } =
 		useHover();
 	const { hovered: copyHovered, hoverHandlers: copyHoverHandlers } = useHover();
+	const { hovered: githubHovered, hoverHandlers: githubHoverHandlers } =
+		useHover();
 
 	return (
 		<header
@@ -227,6 +194,22 @@ export function EditorTabBar({
 			<div className="f-1" />
 
 			<div className="d-f ai-c g-1 px-2">
+				<Tooltip content="View source on GitHub">
+					<a
+						href={GITHUB_URL}
+						target="_blank"
+						rel="noreferrer"
+						aria-label="View source on GitHub"
+						className="d-f ai-c jc-c w-7 h-7 bg-transparent td-none c-p fv:os-s fv:oo-2 fv:oc-accent"
+						style={{
+							color: githubHovered ? colors.accent : colors.accentDim,
+						}}
+						{...githubHoverHandlers}
+					>
+						<GithubLogoIcon size={16} weight="fill" />
+					</a>
+				</Tooltip>
+
 				<Button
 					onClick={onOpenPalette}
 					aria-label="Search commands"

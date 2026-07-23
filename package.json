@@ -23,7 +23,6 @@
 		"@shikijs/engine-javascript": "4.3.1",
 		"@shikijs/langs": "4.3.1",
 		"@tanstack/react-hotkeys": "^0.10.0",
-		"gsap": "^3.15.0",
 		"html-to-image": "^1.11.13",
 		"nuqs": "^2.9.0",
 		"react": "^19.2.7",
