@@ -4,7 +4,10 @@ import { XIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { useChromeTheme, useHover } from "../lib/chrome-theme";
 import { overlayColor } from "../lib/color";
+import { getHighlighter } from "../lib/highlighter";
 import { modLabel } from "../lib/platform";
+import type { HighlightType } from "../lib/types";
+import type { FrameColors } from "./frame";
 
 const STORAGE_KEY = "prisharp-onboarding-seen";
 
@@ -14,103 +17,250 @@ const STORAGE_KEY = "prisharp-onboarding-seen";
 const SHORTCUTS: { keys: string; description: string }[] = [
 	{ keys: "Alt + click", description: "Highlight a line" },
 	{ keys: "Alt + drag", description: "Highlight a range of lines" },
-	{
-		keys: "Alt + Shift + drag",
-		description: "Highlight exactly the text you drag over",
-	},
-	{ keys: "Alt + Shift + click", description: "Highlight a single word" },
-	{
-		keys: "click again",
-		description: "Cycle a highlight: mark → add → remove → off",
-	},
+	{ keys: "Alt + Shift + drag", description: "Highlight exact text" },
+	{ keys: "click again", description: "Cycle mark → add → remove → off" },
 	{ keys: `${modLabel} K`, description: "Open the command palette" },
 	{ keys: `${modLabel} S`, description: "Export" },
-	{ keys: `${modLabel} Shift C`, description: "Copy image to clipboard" },
 ];
+
+const PREVIEW_CODE = `export function shuffle(items) {
+	const arr = [...items];
+	for (let i = arr.length - 1; i > 0; i--) {
+		swap(arr, i, randomIndex(i));
+	}
+	return arr;
+}`;
+
+// Mirrors what the real editor would render after a few highlight
+// gestures, so the preview is an honest sample rather than a drawing:
+// a marked range, an added line, and a single highlighted word.
+const PREVIEW_LINES: Record<number, HighlightType> = { 2: "mark", 3: "add" };
+const PREVIEW_WORD = {
+	line: 1,
+	startCol: 7,
+	endCol: 10,
+	type: "mark" as const,
+};
 
 export function hasSeenOnboarding(): boolean {
 	if (typeof window === "undefined") return true;
 	return window.localStorage.getItem(STORAGE_KEY) === "true";
 }
 
+function CodePreview({
+	frameColors,
+	themeName,
+}: {
+	frameColors: FrameColors;
+	themeName: string;
+}) {
+	const [tokens, setTokens] = useState<{ content: string; color?: string }[][]>(
+		[],
+	);
+
+	useEffect(() => {
+		let cancelled = false;
+		getHighlighter().then((highlighter) => {
+			if (cancelled) return;
+			setTokens(
+				highlighter.codeToTokens(PREVIEW_CODE, {
+					lang: "javascript",
+					theme: themeName,
+				}).tokens,
+			);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [themeName]);
+
+	const lines = PREVIEW_CODE.split("\n");
+
+	return (
+		<div
+			className="w-100% max-w-120 bw-1 bs-s o-h"
+			style={{
+				backgroundColor: frameColors.surface,
+				borderColor: frameColors.border,
+			}}
+		>
+			<div
+				className="d-f ai-c px-3 py-2 bbw-1 bs-s"
+				style={{
+					backgroundColor: frameColors.tabBar,
+					borderColor: frameColors.border,
+				}}
+			>
+				<span className="ff-m fs-xs" style={{ color: frameColors.accentDim }}>
+					shuffle.js
+				</span>
+			</div>
+			<div className="p-4 ff-m fs-xs lh-4 ox-auto">
+				{lines.map((line, lineIndex) => {
+					const lineType = PREVIEW_LINES[lineIndex];
+					const lineTokens = tokens[lineIndex] ?? [
+						{ content: line, color: undefined },
+					];
+					let col = 0;
+					return (
+						<div
+							// biome-ignore lint/suspicious/noArrayIndexKey: lines are purely positional
+							key={lineIndex}
+							className="ws-pw d-b mx--4 px-4"
+							style={
+								lineType
+									? {
+											backgroundColor: overlayColor(
+												frameColors[
+													lineType === "mark"
+														? "highlightMark"
+														: lineType === "add"
+															? "highlightAdd"
+															: "highlightRemove"
+												],
+												0.16,
+											),
+										}
+									: undefined
+							}
+						>
+							{lineTokens.map((token, tokenIndex) => {
+								const start = col;
+								col += token.content.length;
+								const isWord =
+									lineIndex === PREVIEW_WORD.line &&
+									start >= PREVIEW_WORD.startCol &&
+									start < PREVIEW_WORD.endCol;
+								return (
+									<span
+										// biome-ignore lint/suspicious/noArrayIndexKey: tokens are purely positional within a line
+										key={tokenIndex}
+										className={isWord ? "bw-1" : ""}
+										style={{
+											color: token.color,
+											...(isWord
+												? {
+														backgroundColor: overlayColor(
+															frameColors.highlightMark,
+															0.2,
+														),
+														borderColor: overlayColor(
+															frameColors.highlightMark,
+															0.6,
+														),
+													}
+												: {}),
+										}}
+									>
+										{token.content}
+									</span>
+								);
+							})}
+							{line.length === 0 && " "}
+						</div>
+					);
+				})}
+			</div>
+		</div>
+	);
+}
+
 export function Onboarding({
 	open,
 	onOpenChange,
+	frameColors,
+	themeName,
 }: {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	frameColors: FrameColors;
+	themeName: string;
 }) {
 	const { colors } = useChromeTheme();
 	const { hovered: closeHovered, hoverHandlers: closeHoverHandlers } =
 		useHover();
-	const { hovered: doneHovered, hoverHandlers: doneHoverHandlers } = useHover();
+	const { hovered: startHovered, hoverHandlers: startHoverHandlers } =
+		useHover();
+	// Drives a staggered entrance; flipped on after mount so the first
+	// paint still has everything in its "before" state.
+	const [entered, setEntered] = useState(false);
 
 	useEffect(() => {
-		if (open) window.localStorage.setItem(STORAGE_KEY, "true");
+		if (!open) {
+			setEntered(false);
+			return;
+		}
+		window.localStorage.setItem(STORAGE_KEY, "true");
+		const raf = requestAnimationFrame(() => setEntered(true));
+		return () => cancelAnimationFrame(raf);
 	}, [open]);
+
+	function entranceStyle(index: number): React.CSSProperties {
+		return {
+			opacity: entered ? 1 : 0,
+			transform: entered ? "translateY(0)" : "translateY(6px)",
+			transition: `opacity 300ms ease ${index * 45}ms, transform 300ms ease ${index * 45}ms`,
+		};
+	}
 
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal keepMounted>
 				<Dialog.Backdrop
 					className="p-f i-0 zi-80"
-					style={{ backgroundColor: overlayColor(colors.page, 0.6) }}
+					style={{ backgroundColor: colors.page }}
 				/>
 				<Dialog.Popup
-					className="p-f t-50% l-50% zi-90 w-120 max-w-90% bw-1 bs-s bs-o-xs"
-					style={{
-						// ttx--half and tty--half both write `transform`, so using
-						// both classes together silently drops one axis - the
-						// centering has to be a single declaration.
-						transform: "translate(-50%, -50%)",
-						backgroundColor: colors.surface,
-						borderColor: colors.border,
-					}}
+					className="p-f i-0 zi-90 d-f fd-c @lg:fd-r"
+					style={{ backgroundColor: colors.page }}
 				>
-					<div
-						className="d-f ai-c jc-sb px-4 py-3 bbw-1 bs-s"
-						style={{ borderColor: colors.border }}
+					<Dialog.Close
+						aria-label="Close"
+						className="p-a t-4 r-4 zi-10 d-f ai-c jc-c w-8 h-8 p-0 bg-transparent bw-0 c-p fv:os-s fv:oo-2 fv:oc-accent"
+						style={{ color: closeHovered ? colors.accent : colors.accentDim }}
+						{...closeHoverHandlers}
 					>
-						<Dialog.Title
-							className="fs-sm ff-m fw-700 us-none"
-							style={{ color: colors.accentDim }}
-						>
-							Welcome to Prisharp
-						</Dialog.Title>
-						<Dialog.Close
-							aria-label="Close"
-							className="d-f ai-c jc-c w-6 h-6 p-0 bg-transparent bw-0 c-p fv:os-s fv:oo-2 fv:oc-accent"
-							style={{ color: closeHovered ? colors.accent : colors.accentDim }}
-							{...closeHoverHandlers}
-						>
-							<XIcon size={14} weight="bold" />
-						</Dialog.Close>
-					</div>
+						<XIcon size={16} weight="bold" />
+					</Dialog.Close>
 
-					<div className="px-4 py-3">
-						<p
-							className="fs-xs ff-m pb-3 m-0"
-							style={{ color: colors.accentDim }}
-						>
-							Type or paste code, then style it however you like. Highlighting
-							runs on modifier keys — those are worth knowing:
-						</p>
+					<div className="f-1 d-f fd-c jc-c g-4 px-6 @lg:px-12 py-8 min-w-0">
+						<div style={entranceStyle(0)}>
+							<Dialog.Title
+								className="fs-3xl ff-m fw-700 us-none m-0"
+								style={{ color: colors.accentDim }}
+							>
+								Pri<span style={{ color: colors.accent }}>sharp</span>
+							</Dialog.Title>
+							<p
+								className="fs-sm ff-m mt-2 m-0"
+								style={{ color: colors.accentDim }}
+							>
+								Beautiful code screenshots, fully yours to style.
+								<br />
+								Highlighting lives on the Alt key.
+							</p>
+						</div>
 
 						<div className="d-f fd-c g-2">
-							{SHORTCUTS.map(({ keys, description }) => (
-								<div key={keys} className="d-f ai-c jc-sb g-3">
+							{SHORTCUTS.map(({ keys, description }, index) => (
+								<div
+									key={keys}
+									className="d-f ai-c g-3"
+									style={entranceStyle(index + 1)}
+								>
 									<span
-										className="px-2 py-1 bw-1 bs-s fs-xs ff-m ws-nw"
+										className="px-2 py-1 bw-1 bs-s fs-xs ff-m ws-nw ta-c"
 										style={{
 											borderColor: colors.border,
 											color: colors.accentDim,
-											backgroundColor: colors.page,
+											backgroundColor: colors.surface,
+											minWidth: 132,
 										}}
 									>
 										{keys}
 									</span>
 									<span
-										className="fs-xs ff-m ta-r"
+										className="fs-xs ff-m"
 										style={{ color: colors.accentDim }}
 									>
 										{description}
@@ -118,24 +268,36 @@ export function Onboarding({
 								</div>
 							))}
 						</div>
+
+						<div style={entranceStyle(SHORTCUTS.length + 1)}>
+							<Button
+								onClick={() => onOpenChange(false)}
+								className="d-f ai-c g-2 px-4 py-2 bw-1 bs-s fs-sm ff-m us-none c-p fv:os-s fv:oo-2 fv:oc-accent"
+								style={{
+									backgroundColor: startHovered ? colors.accent : "transparent",
+									borderColor: startHovered ? colors.accent : colors.border,
+									color: startHovered ? colors.onAccent : colors.accentDim,
+								}}
+								{...startHoverHandlers}
+							>
+								Start →
+							</Button>
+						</div>
 					</div>
 
 					<div
-						className="d-f jc-fe px-4 py-3 btw-1 bs-s"
-						style={{ borderColor: colors.border }}
+						className="d-none @lg:d-f f-1 ai-c jc-c p-8 blw-1 bs-s min-w-0"
+						style={{
+							backgroundColor: colors.surface,
+							borderColor: colors.border,
+						}}
 					>
-						<Button
-							onClick={() => onOpenChange(false)}
-							className="px-3 py-1 bw-1 bs-s fs-xs ff-m us-none c-p fv:os-s fv:oo-2 fv:oc-accent"
-							style={{
-								backgroundColor: doneHovered ? colors.accent : "transparent",
-								borderColor: doneHovered ? colors.accent : colors.border,
-								color: doneHovered ? colors.onAccent : colors.accentDim,
-							}}
-							{...doneHoverHandlers}
+						<div
+							className="w-100% d-f jc-c"
+							style={entranceStyle(SHORTCUTS.length + 2)}
 						>
-							Got it
-						</Button>
+							<CodePreview frameColors={frameColors} themeName={themeName} />
+						</div>
 					</div>
 				</Dialog.Popup>
 			</Dialog.Portal>

@@ -478,7 +478,12 @@ function App() {
 				commands={commands}
 			/>
 
-			<Onboarding open={onboardingOpen} onOpenChange={setOnboardingOpen} />
+			<Onboarding
+				open={onboardingOpen}
+				onOpenChange={setOnboardingOpen}
+				frameColors={settings.colors}
+				themeName={settings.theme}
+			/>
 		</div>
 	);
 }
