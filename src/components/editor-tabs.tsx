@@ -18,7 +18,7 @@ import { ExportButton } from "./export-button";
 import type { ExportFormat } from "./format-picker";
 import { Tooltip } from "./tooltip";
 
-const GITHUB_URL = "https://github.com/rrenildopereiraa/aperture";
+const GITHUB_URL = "https://github.com/rrenildopereiraa/prisharp";
 
 function TabItem({
 	doc,
