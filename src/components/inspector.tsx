@@ -6,7 +6,12 @@ import { ShuffleIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useChromeTheme, useHover } from "../lib/chrome-theme";
 import { LANGUAGES, type LanguageId, THEMES } from "../lib/highlighter";
-import type { BackgroundPattern, CornerRadii } from "../lib/types";
+import {
+	ASPECT_RATIOS,
+	type AspectRatio,
+	type BackgroundPattern,
+	type CornerRadii,
+} from "../lib/types";
 import { BottomSheet } from "./bottom-sheet";
 import { ColorInput } from "./color-input";
 import type { FrameColors } from "./frame";
@@ -30,7 +35,7 @@ export const FONT_FAMILIES: Record<
 	FontFamilyId,
 	{ label: string; stack?: string }
 > = {
-	default: { label: "Default" },
+	default: { label: "System Mono" },
 	"jetbrains-mono": {
 		label: "JetBrains Mono",
 		stack: '"JetBrains Mono", monospace',
@@ -184,10 +189,10 @@ interface InspectorContentProps {
 	onShowGridLinesChange: (value: boolean) => void;
 	showBoundingBox: boolean;
 	onShowBoundingBoxChange: (value: boolean) => void;
-	showActiveTabBorder: boolean;
-	onShowActiveTabBorderChange: (value: boolean) => void;
 	background: BackgroundPattern;
 	onBackgroundChange: (value: BackgroundPattern) => void;
+	aspectRatio: AspectRatio;
+	onAspectRatioChange: (value: AspectRatio) => void;
 	radii: CornerRadii;
 	onRadiiChange: (value: CornerRadii) => void;
 	fontFamily: FontFamilyId;
@@ -212,10 +217,10 @@ function InspectorContent({
 	onShowGridLinesChange,
 	showBoundingBox,
 	onShowBoundingBoxChange,
-	showActiveTabBorder,
-	onShowActiveTabBorderChange,
 	background,
 	onBackgroundChange,
+	aspectRatio,
+	onAspectRatioChange,
 	radii,
 	onRadiiChange,
 	fontFamily,
@@ -243,32 +248,22 @@ function InspectorContent({
 					checked={showBoundingBox}
 					onCheckedChange={onShowBoundingBoxChange}
 				/>
-				<OptionSwitch
-					label="Status Bar"
-					checked={showStatusBar}
-					onCheckedChange={onShowStatusBarChange}
-				/>
+			<OptionSwitch
+				label="Status Bar"
+				checked={showStatusBar}
+				onCheckedChange={onShowStatusBarChange}
+			/>
 
-				<RadiusControl radii={radii} onRadiiChange={onRadiiChange} />
-
-				<OptionSwitch
-					label="Tab Border"
-					checked={showActiveTabBorder}
-					onCheckedChange={onShowActiveTabBorderChange}
-					disabled={!showTabBar}
-				/>
-				{showActiveTabBorder && showTabBar && (
-					<ColorInput
-						label="Color"
-						indent
-						value={frameColors.activeTabBorder}
-						onChange={(activeTabBorder) =>
-							onFrameColorsChange({ ...frameColors, activeTabBorder })
-						}
-					/>
-				)}
+			<RadiusControl radii={radii} onRadiiChange={onRadiiChange} />
 
 				<PickerField
+					label="Aspect Ratio"
+					value={aspectRatio}
+					options={ASPECT_RATIOS.map(({ id, label }) => ({ id, label }))}
+					onValueChange={onAspectRatioChange}
+				/>
+
+			<PickerField
 					label="Font Family"
 					value={fontFamily}
 					options={(Object.keys(FONT_FAMILIES) as FontFamilyId[]).map((id) => ({

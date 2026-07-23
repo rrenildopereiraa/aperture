@@ -181,8 +181,15 @@ export function Onboarding({
 		useHover();
 	const { hovered: startHovered, hoverHandlers: startHoverHandlers } =
 		useHover();
-	// Drives a staggered entrance; flipped on after mount so the first
-	// paint still has everything in its "before" state.
+	// Drives a staggered entrance; flipped on shortly after mount so the
+	// first paint still has everything in its "before" state.
+	//
+	// This deliberately uses a timer rather than requestAnimationFrame:
+	// rAF does not fire while the document is hidden, so opening the app in
+	// a background tab would leave every animated row stuck at opacity 0
+	// forever (the effect only re-runs when `open` changes). A timer fires
+	// regardless, so the worst case is the transition being skipped - never
+	// invisible content.
 	const [entered, setEntered] = useState(false);
 
 	useEffect(() => {
@@ -191,8 +198,8 @@ export function Onboarding({
 			return;
 		}
 		window.localStorage.setItem(STORAGE_KEY, "true");
-		const raf = requestAnimationFrame(() => setEntered(true));
-		return () => cancelAnimationFrame(raf);
+		const timer = setTimeout(() => setEntered(true), 20);
+		return () => clearTimeout(timer);
 	}, [open]);
 
 	function entranceStyle(index: number): React.CSSProperties {

@@ -3,10 +3,12 @@ import { forwardRef } from "react";
 import { patternLineColor } from "../lib/color";
 import type { LanguageId } from "../lib/highlighter";
 import { LANGUAGES } from "../lib/highlighter";
-import type {
-	BackgroundPattern,
-	HighlightedLine,
-	HighlightedWord,
+import {
+	ASPECT_RATIO_VALUES,
+	type AspectRatio,
+	type BackgroundPattern,
+	type HighlightedLine,
+	type HighlightedWord,
 } from "../lib/types";
 import { CodeEditor } from "./code-editor";
 import type { CornerRadii } from "./inspector";
@@ -20,7 +22,6 @@ export interface FrameColors {
 	tabActive: string;
 	statusBarBg: string;
 	statusBarText: string;
-	activeTabBorder: string;
 	highlightMark: string;
 	highlightAdd: string;
 	highlightRemove: string;
@@ -75,8 +76,8 @@ export const Frame = forwardRef<
 		showStatusBar: boolean;
 		showGridLines: boolean;
 		showBackgroundPattern: boolean;
-		showActiveTabBorder: boolean;
 		background: BackgroundPattern;
+		aspectRatio: AspectRatio;
 		radii: CornerRadii;
 		fontFamily?: string;
 		themeName: string;
@@ -100,8 +101,8 @@ export const Frame = forwardRef<
 		showStatusBar,
 		showGridLines,
 		showBackgroundPattern,
-		showActiveTabBorder,
 		background,
+		aspectRatio,
 		radii,
 		fontFamily,
 		themeName,
@@ -112,12 +113,28 @@ export const Frame = forwardRef<
 	const fontStyle = fontFamily ? { fontFamily } : undefined;
 	const borderRadius = `${radii.tl}px ${radii.tr}px ${radii.br}px ${radii.bl}px`;
 	const patternStyle = getPatternStyle(background, colors.page);
+	const ratioValue = ASPECT_RATIO_VALUES[aspectRatio];
 
 	return (
 		<div
 			ref={ref}
 			className="p-r min-w-0"
-			style={{ padding: FRAME_PADDING, backgroundColor: colors.page }}
+			style={{
+				padding: FRAME_PADDING,
+				backgroundColor: colors.page,
+				...(ratioValue
+					? {
+							aspectRatio: ratioValue,
+							// Centres the code frame in the letterboxed space. The
+							// ratio is a floor, not a clamp: if a snippet is taller
+							// than the shape allows the box grows rather than
+							// cropping code, which would silently ruin an export.
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+						}
+					: {}),
+			}}
 		>
 			<div
 				className="p-r zi-10 w-192 max-w-100% o-v"
@@ -168,45 +185,46 @@ export const Frame = forwardRef<
 						<div
 							className={`frame-collapsible ${showTabBar ? "frame-collapsible-open" : ""}`}
 						>
-							<div className="o-h min-h-0">
+						<div className="o-h min-h-0">
+							<div
+								className="d-f"
+								style={{ backgroundColor: colors.tabBar }}
+							>
 								<div
-									className="d-f ai-c bbw-1 bs-s"
+									className="d-f ai-c g-2 px-4 py-3"
 									style={{
-										backgroundColor: colors.tabBar,
-										borderColor: colors.border,
+										backgroundColor: colors.tabActive,
+										borderRight: `1px solid ${colors.border}`,
 									}}
 								>
-									<div
-										className={`d-f ai-c g-2 px-4 py-3 bs-s ${showActiveTabBorder ? "bbw-2" : "bbw-0"}`}
-										style={{
-											backgroundColor: colors.tabActive,
-											borderColor: showActiveTabBorder
-												? colors.activeTabBorder
-												: "transparent",
-										}}
-									>
-										<Input
-											value={fileName}
-											onChange={(event) => onFileNameChange(event.target.value)}
-											spellCheck={false}
-											placeholder="Untitled-1"
-											className="ff-m fs-sm bg-transparent bw-0 os-none p-0 w-fc"
-											style={{ color: colors.accentDim, ...fontStyle }}
-										/>
-									</div>
+								<Input
+									value={fileName}
+									onChange={(event) => onFileNameChange(event.target.value)}
+									size={Math.max(fileName.length, 10)}
+									spellCheck={false}
+									placeholder="Untitled-1"
+									className="ff-m fs-sm bg-transparent bw-0 os-none p-0 w-fc"
+									style={{ color: colors.accentDim, ...fontStyle }}
+								/>
 								</div>
+								<div
+									className="f-1"
+									style={{ borderBottom: `1px solid ${colors.border}` }}
+									aria-hidden="true"
+								/>
 							</div>
 						</div>
+					</div>
 
-						<div className="p-4">
-							<CodeEditor
-								code={code}
-								onCodeChange={onCodeChange}
-								language={language}
-								themeName={themeName}
-								fontFamily={fontFamily}
-								background={colors.surface}
-								highlightedLines={highlightedLines}
+					<div className="p-4" style={{ backgroundColor: colors.tabActive }}>
+						<CodeEditor
+							code={code}
+							onCodeChange={onCodeChange}
+							language={language}
+							themeName={themeName}
+							fontFamily={fontFamily}
+							background={colors.tabActive}
+							highlightedLines={highlightedLines}
 								highlightedWords={highlightedWords}
 								onCycleLineHighlight={onCycleLineHighlight}
 								onSetLineRangeHighlight={onSetLineRangeHighlight}

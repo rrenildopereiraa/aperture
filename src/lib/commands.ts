@@ -2,7 +2,11 @@ import type { ExportFormat } from "../components/format-picker";
 import { FONT_FAMILIES, type FontFamilyId } from "../components/inspector";
 import { LANGUAGES, type LanguageId } from "./highlighter";
 import { modLabel } from "./platform";
-import type { BackgroundPattern } from "./types";
+import {
+	ASPECT_RATIOS,
+	type AspectRatio,
+	type BackgroundPattern,
+} from "./types";
 
 export interface Command {
 	id: string;
@@ -21,6 +25,7 @@ export function buildCommands({
 	showGridLines,
 	onShowGridLinesChange,
 	onBackgroundChange,
+	onAspectRatioChange,
 	onSetLanguage,
 	onSetFormat,
 	onSetFontFamily,
@@ -43,6 +48,7 @@ export function buildCommands({
 	showGridLines: boolean;
 	onShowGridLinesChange: (value: boolean) => void;
 	onBackgroundChange: (value: BackgroundPattern) => void;
+	onAspectRatioChange: (value: AspectRatio) => void;
 	onSetLanguage: (value: LanguageId) => void;
 	onSetFormat: (value: ExportFormat) => void;
 	onSetFontFamily: (value: FontFamilyId) => void;
@@ -146,6 +152,13 @@ export function buildCommands({
 				id: `background-${id}`,
 				label: `Background: ${BACKGROUND_PATTERNS[id]}`,
 				run: () => onBackgroundChange(id),
+			}),
+		),
+		...ASPECT_RATIOS.map(
+			({ id, label }): Command => ({
+				id: `aspect-ratio-${id}`,
+				label: `Aspect ratio: ${label}`,
+				run: () => onAspectRatioChange(id),
 			}),
 		),
 		...(Object.keys(FONT_FAMILIES) as FontFamilyId[]).map(

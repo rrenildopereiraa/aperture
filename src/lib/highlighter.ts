@@ -43,7 +43,7 @@ export const LANGUAGES = {
 
 export type LanguageId = keyof typeof LANGUAGES;
 
-export const THEME_NAME = defaultTheme.name;
+export const THEME_NAME = eclipsa.name;
 
 const BUILTIN_THEMES = [
 	defaultTheme,
@@ -53,7 +53,7 @@ const BUILTIN_THEMES = [
 ] as ThemeInput[];
 
 export const THEMES = {
-	[THEME_NAME]: defaultTheme.name,
+	[defaultTheme.name]: defaultTheme.name,
 	[eclipsa.name]: eclipsa.name,
 	[monochrome.name]: monochrome.name,
 	[amber.name]: amber.name,
@@ -78,11 +78,9 @@ export function readThemeFrameColors(theme: {
 		tabActive: getColor(c, "tab.activeBackground") ?? f.tabActive ?? "#1a1d2e",
 		statusBarBg:
 			getColor(c, "statusBar.background") ?? f.statusBarBg ?? "#2d3151",
-		statusBarText:
-			getColor(c, "statusBar.foreground") ?? f.statusBarText ?? "#9aa5ef",
-		activeTabBorder:
-			getColor(c, "tab.activeBorder") ?? f.activeTabBorder ?? "#00000000",
-		highlightMark:
+	statusBarText:
+		getColor(c, "statusBar.foreground") ?? f.statusBarText ?? "#9aa5ef",
+	highlightMark:
 			getColor(c, "editor.wordHighlightBackground") ??
 			getColor(c, "editor.rangeHighlightBackground") ??
 			getColor(c, "editor.selectionHighlightBackground") ??
@@ -113,14 +111,13 @@ function getColor(
 export const THEME_FRAME_COLORS: Record<string, FrameColors> = {
 	[defaultTheme.name]: {
 		page: "#ffffff",
-		surface: "#f1f5f9",
+		surface: "#ffffff",
 		border: "#cbd5e1",
 		accentDim: "#64748b",
 		tabBar: "#f1f5f9",
 		tabActive: "#ffffff",
-		statusBarBg: "#f1f5f9",
+		statusBarBg: "#ffffff",
 		statusBarText: "#2563eb",
-		activeTabBorder: "#2563eb",
 		highlightMark: "#64748b",
 		highlightAdd: "#86efac",
 		highlightRemove: "#fca5a5",

@@ -8,7 +8,7 @@ import {
 import type { FrameColors } from "../components/frame";
 import { FONT_FAMILIES, type FontFamilyId } from "../components/inspector";
 import { THEME_FRAME_COLORS, THEME_NAME } from "./highlighter";
-import type { BackgroundPattern } from "./types";
+import type { AspectRatio, BackgroundPattern } from "./types";
 
 const FRAME_COLOR_KEYS: (keyof FrameColors)[] = [
 	"page",
@@ -19,7 +19,6 @@ const FRAME_COLOR_KEYS: (keyof FrameColors)[] = [
 	"tabActive",
 	"statusBarBg",
 	"statusBarText",
-	"activeTabBorder",
 ];
 
 function parseFrameColors(value: unknown): FrameColors | null {
@@ -33,14 +32,21 @@ function parseFrameColors(value: unknown): FrameColors | null {
 
 export const settingsParsers = {
 	tabBar: parseAsBoolean.withDefault(true),
-	statusBar: parseAsBoolean.withDefault(true),
+	statusBar: parseAsBoolean.withDefault(false),
 	bgPattern: parseAsBoolean.withDefault(true),
 	pattern: parseAsStringEnum<BackgroundPattern>([
 		"stripes-right",
 		"stripes-left",
 	]).withDefault("stripes-right"),
 	gridLines: parseAsBoolean.withDefault(true),
-	tabBorder: parseAsBoolean.withDefault(true),
+	ratio: parseAsStringEnum<AspectRatio>([
+		"auto",
+		"1:1",
+		"4:3",
+		"3:4",
+		"16:9",
+		"9:16",
+	]).withDefault("auto"),
 	rtl: parseAsInteger.withDefault(0),
 	rtr: parseAsInteger.withDefault(0),
 	rbl: parseAsInteger.withDefault(0),

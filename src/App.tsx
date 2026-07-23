@@ -360,6 +360,7 @@ function App() {
 		showGridLines: settings.gridLines,
 		onShowGridLinesChange: (value) => setSettings({ gridLines: value }),
 		onBackgroundChange: (value) => setSettings({ pattern: value }),
+		onAspectRatioChange: (value) => setSettings({ ratio: value }),
 		onSetLanguage: (value) => updateActive({ language: value }),
 		onSetFormat: setFormat,
 		onSetFontFamily: (value) => setSettings({ font: value }),
@@ -420,6 +421,7 @@ function App() {
 					showGridLines={settings.gridLines}
 					showBackgroundPattern={settings.bgPattern}
 					background={settings.pattern}
+					aspectRatio={settings.ratio}
 					radii={radii}
 					fontFamily={FONT_FAMILIES[settings.font].stack}
 					themeName={settings.theme}
@@ -448,6 +450,8 @@ function App() {
 					onShowBoundingBoxChange={setShowBoundingBox}
 					background={settings.pattern}
 					onBackgroundChange={(value) => setSettings({ pattern: value })}
+					aspectRatio={settings.ratio}
+					onAspectRatioChange={(value) => setSettings({ ratio: value })}
 					radii={radii}
 					onRadiiChange={setRadii}
 					fontFamily={settings.font}

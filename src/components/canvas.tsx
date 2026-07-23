@@ -1,5 +1,6 @@
 import type { LanguageId } from "../lib/highlighter";
 import type {
+	AspectRatio,
 	BackgroundPattern,
 	HighlightedLine,
 	HighlightedWord,
@@ -25,8 +26,8 @@ export function Canvas({
 	showStatusBar,
 	showGridLines,
 	showBackgroundPattern,
-	showActiveTabBorder,
 	background,
+	aspectRatio,
 	radii,
 	fontFamily,
 	themeName,
@@ -56,8 +57,8 @@ export function Canvas({
 	showStatusBar: boolean;
 	showGridLines: boolean;
 	showBackgroundPattern: boolean;
-	showActiveTabBorder: boolean;
 	background: BackgroundPattern;
+	aspectRatio: AspectRatio;
 	radii: CornerRadii;
 	fontFamily?: string;
 	themeName: string;
@@ -82,12 +83,12 @@ export function Canvas({
 					onCycleWordHighlight={onCycleWordHighlight}
 					onSetWordRangeHighlight={onSetWordRangeHighlight}
 					textareaRef={textareaRef}
-					showTabBar={showTabBar}
-					showStatusBar={showStatusBar}
-					showGridLines={showGridLines}
-					showBackgroundPattern={showBackgroundPattern}
-					showActiveTabBorder={showActiveTabBorder}
-					background={background}
+				showTabBar={showTabBar}
+				showStatusBar={showStatusBar}
+				showGridLines={showGridLines}
+				showBackgroundPattern={showBackgroundPattern}
+				background={background}
+					aspectRatio={aspectRatio}
 					radii={radii}
 					fontFamily={fontFamily}
 					themeName={themeName}

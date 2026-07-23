@@ -50,9 +50,9 @@ export const CHROME_COLORS: Record<ChromeMode, ChromeColors> = {
 const STORAGE_KEY = "prisharp-chrome-mode";
 
 function readStoredMode(): ChromeMode {
-	if (typeof window === "undefined") return "light";
+	if (typeof window === "undefined") return "dark";
 	const stored = window.localStorage.getItem(STORAGE_KEY);
-	return stored === "dark" ? "dark" : "light";
+	return stored === "light" ? "light" : "dark";
 }
 
 const ChromeThemeContext = createContext<{
