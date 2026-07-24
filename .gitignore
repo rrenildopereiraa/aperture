@@ -25,3 +25,5 @@ dist-ssr
 
 # Mock ups
 mocks/
+.vercel
+.env*
