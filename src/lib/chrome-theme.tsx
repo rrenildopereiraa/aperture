@@ -69,7 +69,7 @@ export function useChromeTheme() {
 	return ctx;
 }
 
-// Yumma's `h:` hover-variant classes bake in the light theme's colors, so a
+// The Yumma CSS `h:` hover-variant classes bake in the light theme's colors, so a
 // hover state in dark mode would show the wrong (light) tint - track hover
 // as JS state instead so hover colors can come from the current theme too.
 export function useHover() {
